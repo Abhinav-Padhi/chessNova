@@ -63,3 +63,34 @@ U64 bPawnsAble2DblPush(U64 bpawns, U64 empty) {
    U64 emptyRank6 = shiftNorth(empty & rank5) & empty;
    return bPawnsAble2Push(bpawns, emptyRank6);
 }
+
+
+U64 wPawnEastAttacks(U64 wpawns) {return shiftNortheast(wpawns);}
+U64 wPawnWestAttacks(U64 wpawns) {return shiftNorthwest(wpawns);}
+
+U64 bPawnEastAttacks(U64 bpawns) {return shiftSoutheast(bpawns);}
+U64 bPawnWestAttacks(U64 bpawns) {return shiftSouthwest(bpawns);}
+
+U64 wPawnAnyAttacks(U64 wpawns) {
+   return wPawnEastAttacks(wpawns) | wPawnWestAttacks(wpawns);
+}
+
+U64 wPawnDblAttacks(U64 wpawns) {
+   return wPawnEastAttacks(wpawns) & wPawnWestAttacks(wpawns);
+}
+
+U64 wPawnSingleAttacks(U64 wpawns) {
+   return wPawnEastAttacks(wpawns) ^ wPawnWestAttacks(wpawns);
+}
+
+U64 bPawnAnyAttacks(U64 bpawns) {
+   return bPawnEastAttacks(bpawns) | bPawnWestAttacks(bpawns);
+}
+
+U64 bPawnDblAttacks(U64 bpawns) {
+   return bPawnEastAttacks(bpawns) & bPawnWestAttacks(bpawns);
+}
+
+U64 bPawnSingleAttacks(U64 bpawns) {
+   return bPawnEastAttacks(bpawns) ^ bPawnWestAttacks(bpawns);
+}

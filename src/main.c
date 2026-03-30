@@ -14,7 +14,7 @@ int main() {
     print_bitboard(board.bitboards[wp]);
 
 
-    printf("Visualizing Pawns able to push:");
-    print_bitboard(wPawnsAble2Push(board.bitboards[wp], get_empty(get_occupied(board))));
+    printf("Visualizing White Pawns attack squares:");
+    print_bitboard(wPawnEastAttacks(board.bitboards[wp]));
     return 0;
 }

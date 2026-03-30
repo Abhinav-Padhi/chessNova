@@ -17,3 +17,10 @@ U64 get_occupied(Board board) {
 U64 get_empty(U64 occupied) {
     return ~occupied;
 }
+
+U64 shiftEast(U64 b)      {return (b << 1) & notAFile;}
+U64 shiftNortheast(U64 b) {return (b << 9) & notAFile;}
+U64 shiftSoutheast(U64 b) {return (b >> 7) & notAFile;}
+U64 shiftWest(U64 b)      {return (b >> 1) & notHFile;}
+U64 shiftSouthwest(U64 b) {return (b >> 9) & notHFile;}
+U64 shiftNorthwest(U64 b) {return (b << 7) & notHFile;}

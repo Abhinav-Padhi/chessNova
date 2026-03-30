@@ -5,6 +5,8 @@
 
 typedef uint64_t U64;
 #define max 2048;
+#define notAFile 0xfefefefefefefefe; // ~0x0101010101010101
+#define notHFile 0x7f7f7f7f7f7f7f7f; // ~0x8080808080808080
 
 enum { white, black, both };
 enum { wp, wn, wb, wr, wq, wk, bp, bn, bb, br, bq, bk };
@@ -20,4 +22,5 @@ enum {
 };
 
 enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 }; // castling rights
+
 #endif
