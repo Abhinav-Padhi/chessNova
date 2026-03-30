@@ -13,8 +13,10 @@ int main() {
     printf("Visualizing White Pawns Bitboard:");
     print_bitboard(board.bitboards[wp]);
 
+    printf("Visualizing Black Pawns Bitboard:");
+    print_bitboard(board.bitboards[bp]);
 
-    printf("Visualizing White Pawns attack squares:");
-    print_bitboard(wPawnEastAttacks(board.bitboards[wp]));
+    printf("Visualizing Black Pawns capture squares:");
+    print_bitboard(bPawnsAble2CaptureAny(board.bitboards[bp], board.bitboards[wp]));
     return 0;
 }

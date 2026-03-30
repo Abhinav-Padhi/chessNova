@@ -35,4 +35,14 @@ U64 bPawnAnyAttacks(U64 bpawns);
 U64 bPawnDblAttacks(U64 bpawns);
 U64 bPawnSingleAttacks(U64 bpawns);
 
+U64 wSafePawnSquares(U64 wpawns, U64 bpawns);
+U64 bSafePawnSquares(U64 bpawns, U64 wpawns);
+
+U64 wPawnsAble2CaptureEast(U64 wpawns, U64 bpieces);
+U64 wPawnsAble2CaptureWest(U64 wpawns, U64 bpieces);
+U64 wPawnsAble2CaptureAny(U64 wpawns, U64 bpieces);
+
+U64 bPawnsAble2CaptureEast(U64 bpawns, U64 wpieces);
+U64 bPawnsAble2CaptureWest(U64 bpawns, U64 wpieces);
+U64 bPawnsAble2CaptureAny(U64 bpawns, U64 wpieces);
 #endif

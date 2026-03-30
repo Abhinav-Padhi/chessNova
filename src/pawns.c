@@ -94,3 +94,51 @@ U64 bPawnDblAttacks(U64 bpawns) {
 U64 bPawnSingleAttacks(U64 bpawns) {
    return bPawnEastAttacks(bpawns) ^ bPawnWestAttacks(bpawns);
 }
+
+U64 wSafePawnSquares(U64 wpawns, U64 bpawns) {
+   U64 wPawnEA =  wPawnEastAttacks(wpawns);
+   U64 wPawnWA =  wPawnWestAttacks(wpawns);
+   U64 bPawnEA =  bPawnEastAttacks(bpawns);
+   U64 bPawnWA =  bPawnWestAttacks(bpawns);
+   U64 wPawnDblAttacks  =  wPawnEA &  wPawnWA;
+   U64 wPawnOddAttacks  =  wPawnEA ^  wPawnWA;
+   U64 bPawnDblAttacks  =  bPawnEA &  bPawnWA;
+   U64 bPawnAnyAttacks  =  bPawnEA |  bPawnWA;
+   return wPawnDblAttacks |~bPawnAnyAttacks | (wPawnOddAttacks &~bPawnDblAttacks);
+}
+
+U64 bSafePawnSquares(U64 bpawns, U64 wpawns) {
+   U64 bPawnEA =  bPawnEastAttacks(bpawns);
+   U64 bPawnWA =  bPawnWestAttacks(bpawns);
+   U64 wPawnEA =  wPawnEastAttacks(wpawns);
+   U64 wPawnWA =  wPawnWestAttacks(wpawns);
+   U64 bPawnDblAttacks  =  bPawnEA &  bPawnWA;
+   U64 bPawnOddAttacks  =  bPawnEA ^  bPawnWA;
+   U64 wPawnDblAttacks  =  wPawnEA &  wPawnWA;
+   U64 wPawnAnyAttacks  =  wPawnEA |  wPawnWA;
+   return bPawnDblAttacks |~wPawnAnyAttacks | (bPawnOddAttacks &~wPawnDblAttacks);
+}
+
+U64 wPawnsAble2CaptureEast(U64 wpawns, U64 bpieces) {
+   return wpawns & bPawnWestAttacks(bpieces);
+}
+
+U64 wPawnsAble2CaptureWest(U64 wpawns, U64 bpieces) {
+   return wpawns & bPawnEastAttacks(bpieces);
+}
+
+U64 wPawnsAble2CaptureAny(U64 wpawns, U64 bpieces) {
+   return wpawns & bPawnAnyAttacks(bpieces);
+}
+
+U64 bPawnsAble2CaptureEast(U64 bpawns, U64 wpieces) {
+   return bpawns & wPawnWestAttacks(wpieces);
+}
+
+U64 bPawnsAble2CaptureWest(U64 bpawns, U64 wpieces) {
+   return bpawns & wPawnEastAttacks(wpieces);
+}
+
+U64 bPawnsAble2CaptureAny(U64 bpawns, U64 wpieces) {
+   return bpawns & wPawnAnyAttacks(wpieces);
+}
