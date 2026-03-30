@@ -12,10 +12,10 @@ int main() {
     printf("Visualizing White Pawns Bitboard:");
     print_bitboard(board.bitboards[wp]);
 
+
     U64 white_pawn = 0x0100ULL;
-    board.bitboards[wp] ^= white_pawn;
-    print_bitboard(get_empty(get_occupied(board)));
-    board.bitboards[wp] ^= wSinglePushTargets(white_pawn, get_empty(get_occupied(board)));
+
+    push_white_pawn(white_pawn, &board);
 
     printf("Visualizing White Pawns Bitboard:");
     print_bitboard(board.bitboards[wp]);

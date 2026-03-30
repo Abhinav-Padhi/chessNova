@@ -14,8 +14,32 @@ U64 bSinglePushTargets(U64 bpawns, U64 empty) {
    return shiftSouth(bpawns) & empty;
 }
 
-U64 bDoublePushTargets(U64 bpawns, U64 empty) {
+U64 bDblPushTargets(U64 bpawns, U64 empty) {
    const U64 rank5 = (0x000000FF00000000);
    U64 singlePushs = bSinglePushTargets(bpawns, empty);
    return shiftSouth(singlePushs) & empty & rank5;
+}
+
+void push_white_pawn(U64 pawn, Board *board) {
+    board->bitboards[wp] ^= pawn;
+    print_bitboard(get_empty(get_occupied(*board)));
+    board->bitboards[wp] ^= wSinglePushTargets(pawn, get_empty(get_occupied(*board)));
+}
+
+void push_dwhite_pawn(U64 pawn, Board *board) {
+    board->bitboards[wp] ^= pawn;
+    print_bitboard(get_empty(get_occupied(*board)));
+    board->bitboards[wp] ^= wDblPushTargets(pawn, get_empty(get_occupied(*board)));
+}
+
+void push_black_pawn(U64 pawn, Board *board) {
+    board->bitboards[bp] ^= pawn;
+    print_bitboard(get_empty(get_occupied(*board)));
+    board->bitboards[bp] ^= bSinglePushTargets(pawn, get_empty(get_occupied(*board)));
+}
+
+void push_dblack_pawn(U64 pawn, Board *board) {
+    board->bitboards[bp] ^= pawn;
+    print_bitboard(get_empty(get_occupied(*board)));
+    board->bitboards[bp] ^= bDblPushTargets(pawn, get_empty(get_occupied(*board)));
 }
