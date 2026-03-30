@@ -43,3 +43,23 @@ void push_dblack_pawn(U64 pawn, Board *board) {
     print_bitboard(get_empty(get_occupied(*board)));
     board->bitboards[bp] ^= bDblPushTargets(pawn, get_empty(get_occupied(*board)));
 }
+
+U64 wPawnsAble2Push(U64 wpawns, U64 empty) {
+   return shiftSouth(empty) & wpawns;
+}
+
+U64 wPawnsAble2DblPush(U64 wpawns, U64 empty) {
+   const U64 rank4 = (0x00000000FF000000);
+   U64 emptyRank3 = shiftSouth(empty & rank4) & empty;
+   return wPawnsAble2Push(wpawns, emptyRank3);
+}
+
+U64 bPawnsAble2Push(U64 bpawns, U64 empty) {
+   return shiftNorth(empty) & bpawns;
+}
+
+U64 bPawnsAble2DblPush(U64 bpawns, U64 empty) {
+   const U64 rank5 = (0x000000FF00000000);
+   U64 emptyRank6 = shiftNorth(empty & rank5) & empty;
+   return bPawnsAble2Push(bpawns, emptyRank6);
+}
