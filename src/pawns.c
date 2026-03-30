@@ -1,4 +1,4 @@
-#include "../include/pawns.h"
+#include "../include/defs.h"
 
 U64 wSinglePushTargets(U64 wpawns, U64 empty) {
    return shiftNorth(wpawns) & empty;

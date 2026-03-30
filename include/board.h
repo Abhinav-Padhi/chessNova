@@ -8,9 +8,16 @@ typedef struct {
     int side;
     int enpassant;
     int castle;
+    int fiftyMove;
+    int ply;
+    int hisply;
+
+    U64 posKey;
 } Board;
 
 void print_board(Board *board);
 void print_bitboard(U64 bitboard);
+void reset_board(Board *board);
+void parse_fen(const char *fen, Board *board);
 
 #endif

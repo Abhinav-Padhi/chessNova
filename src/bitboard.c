@@ -1,4 +1,4 @@
-#include "../include/bitboard.h"
+#include "../include/defs.h"
 
 
 U64 shiftSouth(U64 b) {return b >> 8;}
@@ -24,3 +24,20 @@ U64 shiftSoutheast(U64 b) {return (b >> 7) & notAFile;}
 U64 shiftWest(U64 b)      {return (b >> 1) & notHFile;}
 U64 shiftSouthwest(U64 b) {return (b >> 9) & notHFile;}
 U64 shiftNorthwest(U64 b) {return (b << 7) & notHFile;}
+
+bool test_bit(U64 b, int square) {
+    return (b & (1ULL << square));
+}
+
+void set_bit(U64 *b, int square) {
+    *b |= (1ULL << square);
+}
+
+void clear_bit(U64 *b, int square) {
+    *b |=  (1ULL << square); // set bit
+    *b ^=  (1ULL << square); // resets set bit
+}
+
+void toggle_bit(U64 *b, int square) {
+    *b ^= (1ULL << square);
+}

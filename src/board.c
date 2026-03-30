@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../include/board.h"
+#include "../include/defs.h"
 
 char piece_char[] = "PNBRQKpnbrqk";
 
@@ -40,4 +40,59 @@ void print_bitboard(U64 bitboard) {
     }
     printf("\n a  b  c  d  e  f  g  h\n\n");
     printf(" Bitboard: 0x%lx\n\n", bitboard);
+}
+
+void reset_board(Board *board) {
+    for (int i = 0; i <= bk; i++) {
+        board->bitboards[i] = 0;
+    }
+
+    board->occupancies[0] = 0;
+    board->occupancies[1] = 0;
+    board->occupancies[2] = 0;
+    board->side = 0;
+    board->enpassant = -1;
+    board->castle = 0;
+}
+
+void parse_fen(const char *fen, Board *board) {
+    for (int rank = 7; rank >= 0; rank--) {
+        for (int file = 0; file <= 7; file++) {
+            int square = rank * 8 + file;
+
+            if ((*fen >= 'a' && *fen <= 'z') || (*fen >= 'A' && *fen <= 'Z')) {
+                int piece = -1;
+                switch (*fen) {
+                    case 'P': piece = wp; break;
+                    case 'N': piece = wn; break;
+                    case 'B': piece = wb; break;
+                    case 'R': piece = wr; break;
+                    case 'Q': piece = wq; break;
+                    case 'K': piece = wk; break;
+                    case 'p': piece = bp; break;
+                    case 'n': piece = bn; break;
+                    case 'b': piece = bb; break;
+                    case 'r': piece = br; break;
+                    case 'q': piece = bq; break;
+                    case 'k': piece = bk; break;
+                }
+
+                if (piece != -1) {
+                    set_bit(&board->bitboards[piece], square);
+                }
+                fen++;
+            }
+
+            if (*fen >= '0' && *fen <= '9') {
+                int offset = *fen - '0';
+                file += (offset - 1);
+                fen++;
+            }
+
+            if (*fen == '/') fen++;
+        }
+    }
+
+    fen++;
+    board->side = (*fen == 'w') ? white : black;
 }
