@@ -7,6 +7,8 @@
 #include "types.h"
 #include <stdio.h>
 #include <string.h>
+#include "uci.h"
+#include "kings.h"
 
 #define startFEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
