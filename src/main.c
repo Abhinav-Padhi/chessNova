@@ -4,9 +4,9 @@ int main() {
 
     Board board;
     reset_board(&board);
+    calculate_ray_attacks();
 
     for (int i = 0; i < 64; i++) {
-        U64 attacks = knightAttacks(i);
-        print_bitboard(attacks);
+        print_bitboard(rayAttacks[i][SoEa]);
     }
 }

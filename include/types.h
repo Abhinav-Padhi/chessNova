@@ -23,4 +23,6 @@ enum {
 
 enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 }; // castling rights
 
+enum {Nort, Sout, East, West, NoEa, NoWe, SoEa, SoWe};
+
 #endif

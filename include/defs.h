@@ -10,7 +10,7 @@
 #include "uci.h"
 #include "kings.h"
 #include "knights.h"
-
+#include "sliding.h"
 
 #define startFEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
