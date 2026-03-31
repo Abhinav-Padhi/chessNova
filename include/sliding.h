@@ -3,11 +3,8 @@
 #include "types.h"
 #include "bitboard.h"
 
-extern U64 nort;
-extern U64 noea;
-extern U64 sout;
-
 extern U64 rayAttacks[8*64];
+
 extern U64 NorthAttacks[64];
 extern U64 NorthEastAttacks[64];
 extern U64 NorthWestAttacks[64];
@@ -22,7 +19,12 @@ extern U64 fileAttacks[64];
 extern U64 diagonalAttacks[64];
 extern U64 antiDiagonalAttacks[64];
 
+extern U64 RookAttacks[64];
+extern U64 BishopAttacks[64];
+extern U64 QueenAttacks[64];
+
 void calculate_ray_attacks();
 void generate_attacks();
+void generate_piece_attacks();
 
 #endif
