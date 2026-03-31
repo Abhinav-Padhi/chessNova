@@ -45,4 +45,30 @@ U64 wPawnsAble2CaptureAny(U64 wpawns, U64 bpieces);
 U64 bPawnsAble2CaptureEast(U64 bpawns, U64 wpieces);
 U64 bPawnsAble2CaptureWest(U64 bpawns, U64 wpieces);
 U64 bPawnsAble2CaptureAny(U64 bpawns, U64 wpieces);
+
+U64 wRam(U64 wpawns, U64 bpawns);
+U64 bRam(U64 wpawns, U64 bpawns);
+
+U64 wEastLever(U64 wpawns, U64 bpawns);
+U64 wWestLever(U64 wpawns, U64 bpawns);
+U64 wAnyLever(U64 wpawns, U64 bpawns);
+U64 bEastLever(U64 bpawns, U64 wpawns);
+U64 bWestLever(U64 bpawns, U64 wpawns);
+U64 bAnyLever(U64 bpawns, U64 wpawns);
+
+U64 wInnerLever(U64 wpawns, U64 bpawns);
+U64 wOuterLever(U64 wpawns, U64 bpawns);
+U64 wCenterLever(U64 wpawns, U64 bpawns);
+U64 bInnerLever(U64 bpawns, U64 wpawns);
+U64 bOuterLever(U64 bpawns, U64 wpawns);
+U64 bCenterLever(U64 bpawns, U64 wpawns);
+
+U64 wPawnDefendedFromWest(U64 wpawns);
+U64 wPawnDefendedFromEast(U64 wpawns);
+U64 bPawnDefendedFromWest(U64 bpawns);
+U64 bPawnDefendedFromEast(U64 bpawns);
+
+U64 pawnsWithEastNeighbors(U64 pawns);
+U64 pawnsWithWestNeighbors(U64 pawns);
+U64 duo (U64 pawns);
 #endif

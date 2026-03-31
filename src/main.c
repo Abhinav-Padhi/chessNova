@@ -4,7 +4,9 @@ int main() {
     Board board;
     reset_board(&board);
 
-    for (int i = 0; i < 64; i++) {
-        print_bitboard(QueenAttacks[i]);
-    }
+    board.bitboards[wp] = 0x003;
+    board.bitboards[bp] = 0x100;
+
+    print_bitboard(duo(board.bitboards[wp]));
+
 }

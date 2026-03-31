@@ -142,3 +142,127 @@ U64 bPawnsAble2CaptureWest(U64 bpawns, U64 wpieces) {
 U64 bPawnsAble2CaptureAny(U64 bpawns, U64 wpieces) {
    return bpawns & wPawnAnyAttacks(wpieces);
 }
+
+U64 wRam(U64 wpawns, U64 bpawns) {return shiftSouth(bpawns) & wpawns;}
+U64 bRam(U64 wpawns, U64 bpawns) {return shiftNorth(wpawns) & bpawns;}
+
+U64 wEastLever(U64 wpawns, U64 bpawns) {
+   return wpawns & bPawnWestAttacks(bpawns);
+}
+
+U64 wWestLever(U64 wpawns, U64 bpawns) {
+   return wpawns & bPawnEastAttacks(bpawns);
+}
+
+U64 wAnyLever(U64 wpawns, U64 bpawns) {
+   return wEastLever(wpawns, bpawns)
+        | wWestLever(wpawns, bpawns);
+}
+
+U64 bEastLever(U64 bpawns, U64 wpawns) {
+   return bpawns & wPawnWestAttacks(wpawns);
+}
+
+U64 bWestLever(U64 bpawns, U64 wpawns) {
+   return bpawns & wPawnEastAttacks(wpawns);
+}
+
+U64 bAnyLever(U64 bpawns, U64 wpawns) {
+   return bEastLever(bpawns, wpawns)
+        | bWestLever(bpawns, wpawns);
+}
+
+U64 wInnerLever(U64 wpawns, U64 bpawns) {
+   const U64 abcFiles =(0x0707070707070707);
+   const U64 fghFiles =(0xE0E0E0E0E0E0E0E0);
+   return ( wEastLever(wpawns, bpawns) & abcFiles )
+        | ( wWestLever(wpawns, bpawns) & fghFiles );
+}
+
+U64 wOuterLever(U64 wpawns, U64 bpawns) {
+   const U64 bcdFiles =(0x0E0E0E0E0E0E0E0E);
+   const U64 efgFiles =(0x7070707070707070);
+   return ( wEastLever(wpawns, bpawns) & efgFiles )
+        | ( wWestLever(wpawns, bpawns) & bcdFiles );
+}
+
+U64 wCenterLever(U64 wpawns, U64 bpawns) {
+   const U64 dFile =(0x0808080808080808);
+   const U64 eFile =(0x1010101010101010);
+   return ( wEastLever(wpawns, bpawns) & dFile )
+        | ( wWestLever(wpawns, bpawns) & eFile );
+}
+
+U64 bInnerLever(U64 bpawns, U64 wpawns) {
+   const U64 abcFiles =(0x0707070707070707);
+   const U64 fghFiles =(0xE0E0E0E0E0E0E0E0);
+   return ( bEastLever(bpawns, wpawns) & abcFiles )
+        | ( bWestLever(bpawns, wpawns) & fghFiles );
+}
+
+U64 bOuterLever(U64 bpawns, U64 wpawns) {
+   const U64 bcdFiles =(0x0E0E0E0E0E0E0E0E);
+   const U64 efgFiles =(0x7070707070707070);
+   return ( bEastLever(bpawns, wpawns) & efgFiles )
+        | ( bWestLever(bpawns, wpawns) & bcdFiles );
+}
+
+U64 bCenterLever(U64 bpawns, U64 wpawns) {
+   const U64 dFile =(0x0808080808080808);
+   const U64 eFile =(0x1010101010101010);
+   return ( bEastLever(bpawns, wpawns) & dFile )
+        | ( bWestLever(bpawns, wpawns) & eFile );
+}
+
+U64 wPawnDefendedFromWest(U64 wpawns) {
+   return wpawns & wPawnEastAttacks(wpawns);
+}
+
+U64 wPawnDefendedFromEast(U64 wpawns) {
+   return wpawns & wPawnWestAttacks(wpawns);
+}
+
+U64 bPawnDefendedFromWest(U64 bpawns) {
+   return bpawns & bPawnEastAttacks(bpawns);
+}
+
+U64 bPawnDefendedFromEast(U64 bpawns) {
+   return bpawns & bPawnWestAttacks(bpawns);
+}
+
+U64 wPawnDefendersFromWest(U64 wpawns) {
+   return wpawns & bPawnWestAttacks(wpawns);
+}
+
+U64 wPawnDefendersFromEast(U64 wpawns) {
+   return wpawns & bPawnEastAttacks(wpawns);
+}
+
+U64 bPawnDefendersFromWest(U64 bpawns) {
+   return bpawns & wPawnWestAttacks(bpawns);
+}
+
+U64 bPawnDefendersFromEast(U64 bpawns) {
+   return bpawns & wPawnEastAttacks(bpawns);
+}
+
+U64 pawnsWithEastNeighbors(U64 pawns) {
+   return pawns & shiftWest (pawns);
+}
+
+U64 pawnsWithWestNeighbors(U64 pawns) {
+   return pawnsWithEastNeighbors(pawns) << 1; // * 2
+}
+
+U64 duo (U64 pawns) {
+   U64 withWestNeighbors = pawnsWithWestNeighbors(pawns);
+   U64 withEastNeighbors = withWestNeighbors >> 1;
+
+   U64 withOneExclusiveNeighbor  = withWestNeighbors ^ withEastNeighbors;
+   U64 withExclusiveWestNeighbor = withWestNeighbors & withOneExclusiveNeighbor;
+   U64 withExclusiveEastNeighbor = withEastNeighbors & withOneExclusiveNeighbor;
+
+   U64 duoWestOne = withExclusiveEastNeighbor & (withExclusiveWestNeighbor >> 1);
+   U64 duoEastOne = duoWestOne << 1;
+   return duoWestOne | duoEastOne;
+}
