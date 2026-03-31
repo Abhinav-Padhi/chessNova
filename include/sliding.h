@@ -8,6 +8,21 @@ extern U64 noea;
 extern U64 sout;
 
 extern U64 rayAttacks[8*64];
+extern U64 NorthAttacks[64];
+extern U64 NorthEastAttacks[64];
+extern U64 NorthWestAttacks[64];
+extern U64 SouthAttacks[64];
+extern U64 SouthEastAttacks[64];
+extern U64 SouthWestAttacks[64];
+extern U64 EastAttacks[64];
+extern U64 WestAttacks[64];
+
+extern U64 rankAttacks[64];
+extern U64 fileAttacks[64];
+extern U64 diagonalAttacks[64];
+extern U64 antiDiagonalAttacks[64];
+
 void calculate_ray_attacks();
+void generate_attacks();
 
 #endif
