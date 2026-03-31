@@ -7,7 +7,7 @@ extern U64 nort;
 extern U64 noea;
 extern U64 sout;
 
-extern U64 rayAttacks[64][8];
+extern U64 rayAttacks[8*64];
 void calculate_ray_attacks();
 
 #endif
