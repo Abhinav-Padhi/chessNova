@@ -5,5 +5,8 @@ int main() {
     Board board;
     reset_board(&board);
 
-    print_bitboard(kingAttacks(e5));
+    for (int i = 0; i < 64; i++) {
+        U64 attacks = knightAttacks(i);
+        print_bitboard(attacks);
+    }
 }
