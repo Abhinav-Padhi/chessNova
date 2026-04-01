@@ -266,3 +266,18 @@ U64 duo (U64 pawns) {
    U64 duoEastOne = duoWestOne << 1;
    return duoWestOne | duoEastOne;
 }
+U64 northFill(U64 wpawns) {
+   wpawns |= shiftNorth(wpawns);
+   wpawns |= shiftNorth(shiftNorth(wpawns));
+   wpawns |= shiftNorth(shiftNorth(shiftNorth(wpawns)));
+   return wpawns;
+}
+
+U64 southFill(U64 bpawns) {
+   bpawns |= shiftSouth(bpawns);
+   bpawns |= shiftSouth(shiftSouth(bpawns));
+   bpawns |= shiftSouth(shiftSouth(shiftSouth(bpawns)));
+   return bpawns;
+}
+U64 wFrontFill(U64 wp) {return northFill(wp);}
+U64 bFrontFill(U64 bp) {return southFill(bp);}

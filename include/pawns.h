@@ -71,4 +71,6 @@ U64 bPawnDefendedFromEast(U64 bpawns);
 U64 pawnsWithEastNeighbors(U64 pawns);
 U64 pawnsWithWestNeighbors(U64 pawns);
 U64 duo (U64 pawns);
+U64 northFill(U64 wpawns);
+U64 southFill(U64 bpawns);
 #endif
