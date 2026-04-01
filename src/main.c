@@ -4,7 +4,10 @@ int main() {
     Board board;
     reset_board(&board);
 
-    for (int i = 0; i < 64; i++) {
-        print_bitboard(QueenAttacks[i]);
-    }
+    board.bitboards[bp] = ((U64)1 << a7) | ((U64)1 << c6);
+
+    print_bitboard(board.bitboards[bp]);
+    print_bitboard(southFill(board.bitboards[bp]));
+
+    
 }
