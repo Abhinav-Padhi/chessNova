@@ -1,5 +1,6 @@
-#include "../include/defs.h"
+#include "defs.h"
 
+/** @brief Handles the UCI loop, processing commands from the user. */
 void uci_loop() {
     char line[2048];
     setbuf(stdout, NULL);

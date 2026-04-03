@@ -1,4 +1,4 @@
-#include "../include/defs.h"
+#include "defs.h"
 
 int main() {
     Board board;
@@ -9,5 +9,5 @@ int main() {
     print_bitboard(board.bitboards[bp]);
     print_bitboard(southFill(board.bitboards[bp]));
 
-    
+
 }

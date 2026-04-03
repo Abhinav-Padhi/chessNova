@@ -3,7 +3,7 @@
  * @brief Bitboard-based pawn movement and evaluation functions.
  */
 
-#include "../include/defs.h"
+#include "defs.h"
 
 /**
  * @brief Calculates the destination squares for white pawns moving one square forward.

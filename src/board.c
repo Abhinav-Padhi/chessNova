@@ -1,8 +1,10 @@
 #include <stdio.h>
-#include "../include/defs.h"
+#include "defs.h"
 
+/** @brief Character representation of each piece type. */
 char piece_char[] = "PNBRQKpnbrqk";
 
+/** @brief Prints the current board state to the console. */
 void print_board(Board *board) {
     printf("\n");
     for (int rank = 7; rank >= 0; rank--) {
@@ -25,6 +27,7 @@ void print_board(Board *board) {
     printf("\n a  b  c  d  e  f  g  h\n\n");
 }
 
+/** @brief Prints the given bitboard to the console. */
 void print_bitboard(U64 bitboard) {
     printf("\n");
     for (int rank = 7; rank >= 0; rank--) {
@@ -42,6 +45,7 @@ void print_bitboard(U64 bitboard) {
     printf(" Bitboard: 0x%lx\n\n", bitboard);
 }
 
+/** @brief Resets the board to its initial state. */
 void reset_board(Board *board) {
     for (int i = 0; i <= bk; i++) {
         board->bitboards[i] = 0;
@@ -55,6 +59,7 @@ void reset_board(Board *board) {
     board->castle = 0;
 }
 
+/** @brief Parses a FEN string and sets the board state accordingly. */
 void parse_fen(const char *fen, Board *board) {
     for (int rank = 7; rank >= 0; rank--) {
         for (int file = 0; file <= 7; file++) {
