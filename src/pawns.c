@@ -426,3 +426,20 @@ U64 southFill(U64 bpawns) {
 U64 wFrontFill(U64 wp) {return northFill(wp);}
 /** @brief Front fill for black pawns. */
 U64 bFrontFill(U64 bp) {return southFill(bp);}
+
+/** @brief Fills the entire file if it has atleast one pawn */
+U64 fileFill(U64 pawns)
+{
+   return northFill(pawns) | southFill(pawns);
+}
+
+/** @brief Fills the entire file if it has atleast one white and atleast one black pawn. */
+U64 closedFiles(U64 wpawns,U64 bpawns)
+{
+   return fileFill(wpawns) & fileFill(bpawns);
+}
+
+/** @brief Fills the entire file if it has neither a  white nor a black pawn. */
+U64 openFiles(U64 wpawns, U64 bpawns) {
+   return ~fileFill(wpawns) & ~fileFill(bpawns);
+}
