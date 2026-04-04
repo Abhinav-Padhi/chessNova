@@ -16,6 +16,7 @@ low-level bit manipulation and move generation foundations.
 - Legal move generation and validation.
 - Alpha-Beta search implementation.
 - UCI protocol integration.
+- Pawn functions implementation.
 
 # Building the Project
 
