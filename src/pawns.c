@@ -489,3 +489,40 @@ U64 arrbPawnAttacks[64] = {
     562949953421312ULL, 1407374883553280ULL, 2814749767106560ULL, 5629499534213120ULL, 11258999068426240ULL, 22517998136852480ULL,
     45035996273704960ULL, 18014398509481984ULL
 };
+
+/** @brief Fills the portion of the file starting from and not including the backward most white pawn (i.e the least advanced white pawn) to rank 8
+ * @param wpawns The white pawns bitboard
+ * @return returns bitboard with front spans for white pawns.
+ */
+U64 wFrontspans(U64 wpawns)
+{
+   return shiftNorth(northFill(wpawns));
+}
+
+/** @brief Fills the portion of the file starting from and not including the forward most black most pawn (i.e the least advanced black pawn) to rank 1
+ * @param bpawns The black pawns bitboard
+ * @return returns bitboard with front spans for black pawns.
+ */
+U64 bFrontspans(U64 bpawns)
+{
+   return shiftSouth(southFill(bpawns));
+}
+
+/** @brief Fills the portion of the file starting from and not including the backward most white pawn (i.e the least advanced white pawn) to rank 1
+ * @param wpawns The white pawns bitboard
+ * @return returns bitboard with rear spans for white pawns.
+ */
+U64 wRearspans(U64 wpawns)
+{
+   return shiftSouth(southFill(wpawns));
+}
+
+/** @brief Fills the portion of the file starting from and not including the forward most black pawn (i.e the least advanced black pawn) to rank 8
+ * @param bpawns The black pawns bitboard
+ * @return returns bitboard with rear spans for black pawns.
+ */
+U64 bRearspans(U64 bpawns)
+{
+   return shiftNorth(northFill(bpawns));
+}
+

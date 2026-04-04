@@ -79,4 +79,9 @@ U64 openFiles(U64 wpanws, U64 bpawns);
 
 extern U64 arrwPawnAttacks[64];
 extern U64 arrbPawnAttacks[64];
+
+U64 wFrontspans(U64 wpawns);
+U64 bRearspans(U64 wpawns);
+U64 wRearspans(U64 wpawns);
+U64 bFrontspans(U64 wpawns);
 #endif
