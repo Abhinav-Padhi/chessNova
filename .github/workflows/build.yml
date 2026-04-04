@@ -1,18 +1,28 @@
+name: Cross-Platform Build
+
+on:
+  pull_request:
+    branches: ["main"]
+
 jobs:
   build:
     runs-on: ${{ matrix.config.os }}
     strategy:
-      fail-fast: false 
+      fail-fast: false
       matrix:
         config:
           - { name: "Windows MSVC", os: windows-latest, cc: "cl", cxx: "cl" }
           - { name: "Ubuntu gcc", os: ubuntu-latest, cc: "gcc", cxx: "g++" }
-          - { name: "MacOS clang", os: macos-latest, cc: "clang", cxx: "clang++" }
-        
+          - {
+              name: "MacOS clang",
+              os: macos-latest,
+              cc: "clang",
+              cxx: "clang++",
+            }
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
 
       - name: Setup MSVC
         if: matrix.config.os == 'windows-latest'
