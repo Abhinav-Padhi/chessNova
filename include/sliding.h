@@ -22,9 +22,12 @@ extern U64 antiDiagonalAttacks[64];
 extern U64 RookAttacks[64];
 extern U64 BishopAttacks[64];
 extern U64 QueenAttacks[64];
+typedef unsigned char uint8;
+extern uint8 FirstRankAttacks[256*8];
 
 void calculate_ray_attacks();
 void generate_attacks();
 void generate_piece_attacks();
+void initFirstRankAttacks();
 
 #endif

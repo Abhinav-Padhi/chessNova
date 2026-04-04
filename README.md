@@ -17,7 +17,7 @@ low-level bit manipulation and move generation foundations.
 - Alpha-Beta search implementation.
 - UCI protocol integration.
 - Pawn functions implementation.
-
+- Magic Bitboards
 
 # Building the Project
 
