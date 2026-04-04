@@ -9,7 +9,13 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Compile flags (Equivalent to CFLAGS)
 # Note: CMake handles -MMD -MP automatically for dependency tracking
-add_compile_options(-Wall -Wextra -O3)
+if(MSVC)
+  # Strong warnings for Microsoft Visual C++
+  add_compile_options(/W4)
+else()
+  # Strong warnings for GCC and Clang
+  add_compile_options(-Wall -Wextra)
+endif()
 
 # Include directories (Equivalent to -Iinclude)
 include_directories(include)
