@@ -18,6 +18,7 @@ low-level bit manipulation and move generation foundations.
 - UCI protocol integration.
 - Pawn functions implementation.
 
+
 # Building the Project
 
 This project uses **CMake** as its build system. Follow the steps below to compile the engine from source.
