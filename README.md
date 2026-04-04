@@ -28,12 +28,12 @@ Ensure you have the following installed on your system:
 * **Make** or another build generator (like Ninja)
 
 ### 2. Build Instructions
-The recommended way to build is using an "out-of-source" build. This keeps the generated build artifacts separate from the source code.
+The recommended way to build is using an out-of-source build. This keeps the generated build artifacts separate from the source code.
 
 ```bash
 # 1. Clone the repository (if you haven't already)
-git clone <your-repo-link>
-cd <repo-folder-name>
+git clone <https://github.com/mrgreenapple24/chessNova.git>
+cd <chessNova>
 
 # 2. Create and enter a build directory
 mkdir build
@@ -51,3 +51,16 @@ cmake --build .
 
 # 6. Cleaning the build
 rm -rf build
+```
+
+### 3. Documentation
+Documentation is generated using doxygen to view the generated pages-
+```bash
+# 1. Make a docs directory
+mkdir docs
+
+# 2. Run the doxygen file
+doxygen Doxyfile
+
+# 3. Open the index.html file in docs/html/
+```

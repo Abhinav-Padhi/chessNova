@@ -76,4 +76,7 @@ U64 southFill(U64 bpawns);
 U64 fileFill(U64 pawns);
 U64 closedFiles(U64 wpawns,U64 bpawns);
 U64 openFiles(U64 wpanws, U64 bpawns);
+
+extern U64 arrwPawnAttacks[64];
+extern U64 arrbPawnAttacks[64];
 #endif
