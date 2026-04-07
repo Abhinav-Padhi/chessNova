@@ -3,6 +3,7 @@
 int main() {
     Board board;
     reset_board(&board);
-    parse_fen(startFEN, &board);
-    print_board(&board);
+
+    for (int square = 0; square < 64; square++)
+        print_bitboard(BishopAttacks[square]);
 }
