@@ -1,10 +1,20 @@
 #include <stdio.h>
+#include "stdlib.h"
 #include "defs.h"
+
+#define RAND_64 	((U64)rand() | \
+					(U64)rand() << 15 | \
+					(U64)rand() << 30 | \
+					(U64)rand() << 45 | \
+					((U64)rand() & 0xf) << 60 )
 
 /** @brief Character representation of each piece type. */
 char piece_char[] = "PNBRQKpnbrqk";
 int FilesBrd[64];
 int RanksBrd[64];
+U64 PieceKeys[13][64];
+U64 SideKey;
+U64 CastleKeys[16];
 
 /** @brief Prints the current board state to the console. */
 void print_board(Board *board) {
@@ -110,7 +120,7 @@ U64 GeneratePosKey(const Board *pos) {
 	U64 finalKey = 0;
 	int piece = EMPTY;
 
-	for(sq = 0; sq < BRD_SQ_NUM; ++sq) {
+	for(sq = 0; sq < 64; ++sq) {
 		piece = pos->pieces[sq];
 		if(piece != NO_SQ && piece != OFFBOARD) {
 			ASSERT(piece>=wp && piece<=bk);
@@ -136,17 +146,33 @@ U64 GeneratePosKey(const Board *pos) {
 	return finalKey;
 }
 
-void init_board(Board *board) {
-	for(index = 0; index < 64; ++index) {
+void init_board() {
+	for(int index = 0; index < 64; ++index) {
 		FilesBrd[index] = OFFBOARD;
 		RanksBrd[index] = OFFBOARD;
 	}
 
-	for(rank = RANK_1; rank <= RANK_8; ++rank) {
-		for(file = FILE_A; file <= FILE_H; ++file) {
-			sq = rank*8 + file;
+	for(int rank = RANK_1; rank <= RANK_8; ++rank) {
+		for(int file = FILE_A; file <= FILE_H; ++file) {
+			int sq = rank*8 + file;
 			FilesBrd[sq] = file;
 			RanksBrd[sq] = rank;
 		}
 	}
+}
+
+void InitHashKeys() {
+
+	int index = 0;
+	int index2 = 0;
+	for(index = 0; index < 13; ++index) {
+		for(index2 = 0; index2 < 64; ++index2) {
+			PieceKeys[index][index2] = RAND_64;
+		}
+	}
+	SideKey = RAND_64;
+	for(index = 0; index < 16; ++index) {
+		CastleKeys[index] = RAND_64;
+	}
+
 }
