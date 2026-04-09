@@ -129,11 +129,10 @@ const int BitTable[64] = {
  * @param bb The bitboard to pop.
  * @return The index of the least significant bit set.
  */
-int PopBit(U64 *bb) {
-  U64 b = *bb ^ (*bb - 1);
-  unsigned int fold = (unsigned) ((b & 0xffffffff) ^ (b >> 32));
-  *bb &= (*bb - 1);
-  return BitTable[(fold * 0x783a9b23) >> 26];
+static inline int pop_lsb(bitboard *bb) {
+    int index = get_lsb(*bb);
+    *bb &= (*bb - 1);
+    return index;
 }
 
 /**
@@ -141,8 +140,14 @@ int PopBit(U64 *bb) {
  * @param b The bitboard to count.
  * @return The number of bits set.
  */
-int CountBits(U64 b) {
-  int r;
-  for(r = 0; b; r++, b &= b - 1);
-  return r;
+int count_bits(U64 bb) {
+    return __builtin_popcountll(bb);
+}
+
+/**
+ * @brief Returns the index (0-63) of the least significant bit.
+ * Should only be called if bb != 0.
+ */
+int get_lsb(U64 bb) {
+    return __builtin_ctzll(bb);
 }
