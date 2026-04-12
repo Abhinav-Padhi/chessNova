@@ -2,7 +2,6 @@
 #define BOARD_H
 #include "types.h"
 typedef struct {
-	int pieces[64];
     U64 bitboards[12];    // One for each piece type
     U64 occupancies[3];   // black white or both
 

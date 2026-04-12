@@ -23,8 +23,5 @@ bool test_bit(U64 b, int square);
 void set_bit(U64 *b, int square);
 void clear_bit(U64 *b, int square);
 void toggle_bit(U64 *b, int square);
-int count_bits(U64 bb);
-int get_lsb(U64 bb);
-int pop_lsb(U64 *bb);
 
 #endif // BITBOARD_H
