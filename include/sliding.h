@@ -23,11 +23,19 @@ extern U64 RookAttacks[64];
 extern U64 BishopAttacks[64];
 extern U64 QueenAttacks[64];
 typedef unsigned char uint8;
-extern uint8 FirstRankAttacks[256*8];
 
 void calculate_ray_attacks();
 void generate_attacks();
 void generate_piece_attacks();
-void initFirstRankAttacks();
+U64 mask_rook_attacks(int sq);
+U64 mask_bishop_attacks(int sq);
+U64 mask_queen_attacks(int sq);
+extern U64 rook_masks[64];
+extern U64 bishop_masks[64];
+extern U64 queen_masks[64];
+U64 set_occupancy(int index, int bits_in_mask, U64 mask);
+extern int rook_mask_bits[64];
+extern int bishop_mask_bits[64];
+extern int queen_mask_bits[64];
 
 #endif

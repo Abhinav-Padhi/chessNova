@@ -113,3 +113,31 @@ U64 attacksTo(U64 occupied, int sq, Board *board) {
         ;
 }
 */
+
+/**
+ * @brief Pops the least significant bit set in a 64-bit integer.
+ * @param bb The bitboard to pop.
+ * @return The index of the least significant bit set.
+ */
+int pop_lsb(U64 *bb) {
+    int index = get_lsb(*bb);
+    *bb &= (*bb - 1);
+    return index;
+}
+
+/**
+ * @brief Counts the number of bits set in a 64-bit integer.
+ * @param b The bitboard to count.
+ * @return The number of bits set.
+ */
+int count_bits(U64 bb) {
+    return __builtin_popcountll(bb);
+}
+
+/**
+ * @brief Returns the index (0-63) of the least significant bit.
+ * Should only be called if bb != 0.
+ */
+int get_lsb(U64 bb) {
+    return __builtin_ctzll(bb);
+}
