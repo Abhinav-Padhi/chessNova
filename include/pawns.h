@@ -84,4 +84,7 @@ U64 wFrontspans(U64 wpawns);
 U64 bRearspans(U64 wpawns);
 U64 wRearspans(U64 wpawns);
 U64 bFrontspans(U64 wpawns);
+
+U64 eastAttackFileFill (U64 pawns);
+U64 westAttackFileFill (U64 pawns);
 #endif
