@@ -526,3 +526,15 @@ U64 bRearspans(U64 bpawns)
    return shiftNorth(northFill(bpawns));
 }
 
+U64 wEastAttackFrontSpans (U64 wpawns) {return wPawnEastAttacks(wFrontspans(wpawns));}
+U64 wWestAttackFrontSpans (U64 wpawns) {return wPawnWestAttacks(wFrontspans(wpawns));}
+U64 bEastAttackFrontSpans (U64 bpawns) {return bPawnEastAttacks(bFrontspans(bpawns));}
+U64 bWestAttackFrontSpans (U64 bpawns) {return bPawnWestAttacks(bFrontspans(bpawns));}
+
+U64 wEastAttackRearSpans (U64 wpawns)  {return wPawnEastAttacks(southFill(wpawns));}
+U64 wWestAttackRearSpans (U64 wpawns)  {return wPawnWestAttacks(southFill(wpawns));}
+U64 bEastAttackRearSpans (U64 bpawns)  {return bPawnEastAttacks(southFill(bpawns));}
+U64 bWestAttackRearSpans (U64 bpawns)  {return bPawnWestAttacks(southFill(bpawns));}\
+
+U64 eastAttackFileFill (U64 pawns) {return shiftEast(fileFill(pawns));}
+U64 westAttackFileFill (U64 pawns) {return shiftWest(fileFill(pawns));}

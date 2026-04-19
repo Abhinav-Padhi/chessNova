@@ -4,6 +4,32 @@
 #include "types.h"
 #include "board.h"
 #include <stdbool.h>
+#include <stdint.h>
+
+#if defined(_MSC_VER)
+#include <intrin.h>
+
+static inline int count_bits(uint64_t x) {
+    return __popcnt64(x);
+}
+
+static inline int get_lsb(uint64_t x) {
+    unsigned long index;
+    _BitScanForward64(&index, x);
+    return index;
+}
+
+#else
+
+static inline int count_bits(uint64_t x) {
+    return __builtin_popcountll(x);
+}
+
+static inline int get_lsb(uint64_t x) {
+    return __builtin_ctzll(x);
+}
+
+#endif
 
 
 U64 shiftSouth(U64 b);
