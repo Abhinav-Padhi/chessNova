@@ -124,20 +124,3 @@ int pop_lsb(U64 *bb) {
     *bb &= (*bb - 1);
     return index;
 }
-
-/**
- * @brief Counts the number of bits set in a 64-bit integer.
- * @param b The bitboard to count.
- * @return The number of bits set.
- */
-int count_bits(U64 bb) {
-    return __builtin_popcountll(bb);
-}
-
-/**
- * @brief Returns the index (0-63) of the least significant bit.
- * Should only be called if bb != 0.
- */
-int get_lsb(U64 bb) {
-    return __builtin_ctzll(bb);
-}
