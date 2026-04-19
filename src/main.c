@@ -16,4 +16,7 @@ int main() {
     
     print_board(&board);
     */
+    reset_board(&board);
+    parse_fen(startFEN, &board);
+    print_board(&board);
 }
