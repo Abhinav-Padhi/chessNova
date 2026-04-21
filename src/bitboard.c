@@ -1,5 +1,10 @@
 #include "defs.h"
 
+U64 arrFiles[8] = {
+    0x101010101010101, 0x202020202020202, 0x404040404040404, 0x808080808080808, 0x1010101010101010, 0x2020202020202020, 0x4040404040404040, 0x8080808080808080
+};
+
+
 /** @brief Shifts a bitboard south (down).
  * @param b The bitboard to shift.
  * @return The shifted bitboard.

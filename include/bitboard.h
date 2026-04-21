@@ -45,6 +45,8 @@ U64 shiftNorthwest(U64 b);
 U64 get_occupied(Board board);
 U64 get_empty(U64 occupied);
 
+extern U64 arrFiles[8];
+
 bool test_bit(U64 b, int square);
 void set_bit(U64 *b, int square);
 void clear_bit(U64 *b, int square);
