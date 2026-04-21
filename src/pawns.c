@@ -526,38 +526,90 @@ U64 bRearspans(U64 bpawns)
    return shiftNorth(northFill(bpawns));
 }
 
+/**
+ * @brief returns the east attack front spans for white pawns.
+ */
 U64 wEastAttackFrontSpans (U64 wpawns) {return wPawnEastAttacks(wFrontspans(wpawns));}
+
+/**
+ * @brief returns the west attack front spans for white pawns.
+ */
 U64 wWestAttackFrontSpans (U64 wpawns) {return wPawnWestAttacks(wFrontspans(wpawns));}
+
+/**
+ * @brief returns the east attack front spans for black pawns.
+ */
 U64 bEastAttackFrontSpans (U64 bpawns) {return bPawnEastAttacks(bFrontspans(bpawns));}
+
+/**
+ * @brief returns the west attack front spans for black pawns.
+ */
 U64 bWestAttackFrontSpans (U64 bpawns) {return bPawnWestAttacks(bFrontspans(bpawns));}
 
+/**
+ * @brief returns the east attack rear spans for white pawns.
+ */
 U64 wEastAttackRearSpans (U64 wpawns)  {return wPawnEastAttacks(southFill(wpawns));}
-U64 wWestAttackRearSpans (U64 wpawns)  {return wPawnWestAttacks(southFill(wpawns));}
-U64 bEastAttackRearSpans (U64 bpawns)  {return bPawnEastAttacks(southFill(bpawns));}
-U64 bWestAttackRearSpans (U64 bpawns)  {return bPawnWestAttacks(southFill(bpawns));}\
 
+/**
+ * @brief returns the west attack rear spans for white pawns.
+ */
+U64 wWestAttackRearSpans (U64 wpawns)  {return wPawnWestAttacks(southFill(wpawns));}
+
+/**
+ * @brief returns the east attack rear spans for black pawns.
+ */
+U64 bEastAttackRearSpans (U64 bpawns)  {return bPawnEastAttacks(southFill(bpawns));}
+
+/**
+ * @brief returns the west attack rear spans for black pawns.
+ */
+U64 bWestAttackRearSpans (U64 bpawns)  {return bPawnWestAttacks(southFill(bpawns));}
+
+/**
+ * @brief returns the east attack file fill for pawns.
+ */
 U64 eastAttackFileFill (U64 pawns) {return shiftEast(fileFill(pawns));}
+
+/**
+ * @brief returns the west attack file fill for pawns.
+ */
 U64 westAttackFileFill (U64 pawns) {return shiftWest(fileFill(pawns));}
 
+/**
+ * @brief returns the file set of pawns (the files they occupy).
+ */
 uint8_t fileSet(U64 pawns) {return (uint8_t) southFill(pawns);}
 
+/**
+ * @brief returns the east files of pawns that are isolated (no pawns on either side).
+ */
 uint8_t islandsEastfiles(U64 pawns)
 {
    uint8_t f = fileSet(pawns);
    return f & ~(f<<1);
 }
 
+/**
+ * @brief returns the west files of pawns that are isolated (no pawns on either side).
+ */
 uint8_t islandsWestfiles(U64 pawns)
 {
    uint8_t f = fileSet(pawns);
    return f & ~(f>>1);
 }
 
+/**
+ * @brief returns the files of pawns that are isolated (no pawns on either side).
+ */
 uint8_t isolatedFiles(U64 pawns)
 {
    return islandsEastfiles(pawns) & islandsWestfiles(pawns);
 }
 
+/**
+ * @brief returns the number of pawn islands.
+ */
 int countIslands(U64 pawns)
 {
    return count_bits(islandsEastfiles(pawns));
