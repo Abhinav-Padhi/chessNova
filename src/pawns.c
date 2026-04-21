@@ -560,5 +560,5 @@ uint8_t isolatedFiles(U64 pawns)
 
 int countIslands(U64 pawns)
 {
-   return __builtin_popcount(islandsEastfiles(pawns));
+   return count_bits(islandsEastfiles(pawns));
 }
