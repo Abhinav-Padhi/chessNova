@@ -614,3 +614,17 @@ int countIslands(U64 pawns)
 {
    return count_bits(islandsEastfiles(pawns));
 }
+/**
+ * @brief returns pawns with atleast one pawn in front on the same file
+ */
+U64 wPawnsBehindOwn(U64 wpawns) {return wpawns & wRearSpans(wpawns);}
+/**
+ * @brief returns pawns with atleast one pawn behind on the same file.
+ */
+U64 wPawnsInfrontOwn (U64 wpawns) {return wpawns & wFrontSpans(wpawns);}
+/**
+ * @brief returns pawns with atleast one pawn in front and behind on the same file.
+ */
+U64 wPawnsInfrontAndBehindOwn (U64 wpawns) {
+   return wPawnsInfrontOwn(wpawns) &  wPawnsBehindOwn(wpawns);
+}
