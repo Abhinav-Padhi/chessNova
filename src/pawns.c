@@ -538,3 +538,27 @@ U64 bWestAttackRearSpans (U64 bpawns)  {return bPawnWestAttacks(southFill(bpawns
 
 U64 eastAttackFileFill (U64 pawns) {return shiftEast(fileFill(pawns));}
 U64 westAttackFileFill (U64 pawns) {return shiftWest(fileFill(pawns));}
+
+uint8_t fileSet(U64 pawns) {return (uint8_t) southFill(pawns);}
+
+uint8_t islandsEastfiles(U64 pawns)
+{
+   uint8_t f = fileSet(pawns);
+   return f & ~(f<<1);
+}
+
+uint8_t islandsWestfiles(U64 pawns)
+{
+   uint8_t f = fileSet(pawns);
+   return f & ~(f>>1);
+}
+
+uint8_t isolatedFiles(U64 pawns)
+{
+   return islandsEastfiles(pawns) & islandsWestfiles(pawns);
+}
+
+int countIslands(U64 pawns)
+{
+   return __builtin_popcount(islandsEastfiles(pawns));
+}

@@ -87,4 +87,10 @@ U64 bFrontspans(U64 wpawns);
 
 U64 eastAttackFileFill (U64 pawns);
 U64 westAttackFileFill (U64 pawns);
+
+uint8_t fileSet(U64 pawns);
+uint8_t islandsEastfiles(U64 pawns);
+uint8_t islandsWestfiles(U64 pawns);
+uint8_t isolatedFiles(U64 pawns);
+int countIslands(U64 pawns);
 #endif

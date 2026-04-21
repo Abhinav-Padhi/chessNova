@@ -2,10 +2,11 @@
 
 int main() {
     Board board;
-    board.bitboards[bp] = ((U64)1 << a7) | ((U64)1 << c6);
+    board.bitboards[bp] = ((U64)1 << a7) | ((U64)1 << c6 | (U64)1 << d5);
     board.bitboards[wp] = ((U64)1 << a4) | ((U64)1 << e2);
     print_bitboard(board.bitboards[bp]);
-    print_bitboard(westAttackFileFill(board.bitboards[bp]));
+    print_bitboard(islandsEastfiles(board.bitboards[bp]));
+    printf("%d\n",countIslands(board.bitboards[bp]));
 
     print_bitboard(board.bitboards[wp]);
     print_bitboard(eastAttackFileFill(board.bitboards[wp]));
