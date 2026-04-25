@@ -8,7 +8,7 @@ void run_perft(char *fen, int depth) {
     Board board;
     parse_fen(fen, &board);
     printf("\nPerft Test: %s\n", fen);
-    
+
     for (int d = 1; d <= depth; d++) {
         clock_t start = clock();
         long long nodes = perft_test(&board, d);
@@ -20,9 +20,7 @@ void run_perft(char *fen, int depth) {
 
 int main() {
     init_magics();
-    
-    run_perft(startFEN, 4);
-    run_perft("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3);
+    run_perft("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 4);
 
     return 0;
 }

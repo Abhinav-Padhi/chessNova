@@ -11,13 +11,16 @@ low-level bit manipulation and move generation foundations.
     - Sliding piece logic (Rooks, Bishops, Queens).
     - Pawn capture and push bitmask generation.
 - **Board State:** Initial infrastructure for piece placement and square control.
+- **Legal move generation and validation:** Perft test passed.
+- **Magic Bitboards:** Implemented for sliding piece attacks.
 
 ## Future Focus
-- Legal move generation and validation.
+- Evaluation and Search to be added
 - Alpha-Beta search implementation.
 - UCI protocol integration.
 - Pawn functions implementation.
-- Magic Bitboards
+- Opening Books
+- Closing Books
 
 # Building the Project
 
