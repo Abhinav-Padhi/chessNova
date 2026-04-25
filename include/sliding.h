@@ -3,39 +3,36 @@
 #include "types.h"
 #include "bitboard.h"
 
-extern U64 rayAttacks[8*64];
+/* Magic Bitboard Structures */
+typedef struct {
+    U64 *attacks;
+    U64 mask;
+    U64 magic;
+    int shift;
+} Magic;
 
-extern U64 NorthAttacks[64];
-extern U64 NorthEastAttacks[64];
-extern U64 NorthWestAttacks[64];
-extern U64 SouthAttacks[64];
-extern U64 SouthEastAttacks[64];
-extern U64 SouthWestAttacks[64];
-extern U64 EastAttacks[64];
-extern U64 WestAttacks[64];
+extern Magic rook_magics[64];
+extern Magic bishop_magics[64];
 
-extern U64 rankAttacks[64];
-extern U64 fileAttacks[64];
-extern U64 diagonalAttacks[64];
-extern U64 antiDiagonalAttacks[64];
+/* Function to get sliding attacks using Magic Bitboards */
+static inline U64 get_bishop_attacks(int sq, U64 occ) {
+    occ &= bishop_magics[sq].mask;
+    occ *= bishop_magics[sq].magic;
+    occ >>= bishop_magics[sq].shift;
+    return bishop_magics[sq].attacks[occ];
+}
 
-extern U64 RookAttacks[64];
-extern U64 BishopAttacks[64];
-extern U64 QueenAttacks[64];
-typedef unsigned char uint8;
+static inline U64 get_rook_attacks(int sq, U64 occ) {
+    occ &= rook_magics[sq].mask;
+    occ *= rook_magics[sq].magic;
+    occ >>= rook_magics[sq].shift;
+    return rook_magics[sq].attacks[occ];
+}
 
-void calculate_ray_attacks();
-void generate_attacks();
-void generate_piece_attacks();
-U64 mask_rook_attacks(int sq);
-U64 mask_bishop_attacks(int sq);
-U64 mask_queen_attacks(int sq);
-extern U64 rook_masks[64];
-extern U64 bishop_masks[64];
-extern U64 queen_masks[64];
-U64 set_occupancy(int index, int bits_in_mask, U64 mask);
-extern int rook_mask_bits[64];
-extern int bishop_mask_bits[64];
-extern int queen_mask_bits[64];
+static inline U64 get_queen_attacks(int sq, U64 occ) {
+    return get_bishop_attacks(sq, occ) | get_rook_attacks(sq, occ);
+}
+
+void init_magics();
 
 #endif
