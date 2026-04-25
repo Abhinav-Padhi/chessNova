@@ -6,6 +6,7 @@
 typedef uint64_t U64;
 
 #define MAX_MOVES 256
+#define MAX_PLY 1024
 #define notAFile 0xfefefefefefefefeULL
 #define notHFile 0x7f7f7f7f7f7f7f7fULL
 
@@ -57,7 +58,7 @@ typedef struct {
 #define MFLAG_CA 0x400000
 #define MFLAG_CAP 0x800000
 
-/* Macros to pack a move */
+/* Macros to pack a move (f=from, t=to, cap=captured, pro=promoted, fl=flags) */
 #define MOVE(f, t, cap, pro, fl) ((f) | ((t) << 6) | ((cap) << 12) | ((pro) << 16) | (fl))
 
 enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 }; // castling rights

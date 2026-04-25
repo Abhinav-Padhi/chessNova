@@ -18,15 +18,13 @@ extern Magic bishop_magics[64];
 static inline U64 get_bishop_attacks(int sq, U64 occ) {
     occ &= bishop_magics[sq].mask;
     occ *= bishop_magics[sq].magic;
-    occ >>= bishop_magics[sq].shift;
-    return bishop_magics[sq].attacks[occ];
+    return bishop_magics[sq].attacks[occ >> bishop_magics[sq].shift];
 }
 
 static inline U64 get_rook_attacks(int sq, U64 occ) {
     occ &= rook_magics[sq].mask;
     occ *= rook_magics[sq].magic;
-    occ >>= rook_magics[sq].shift;
-    return rook_magics[sq].attacks[occ];
+    return rook_magics[sq].attacks[occ >> rook_magics[sq].shift];
 }
 
 static inline U64 get_queen_attacks(int sq, U64 occ) {

@@ -1,60 +1,28 @@
 #include <stdio.h>
+#include <time.h>
 #include "defs.h"
 #include "sliding.h"
 #include "movegen.h"
 
-void print_move(uint32_t move) {
-    int from = GET_FROM(move);
-    int to = GET_TO(move);
-    
-    char from_file = 'a' + (from % 8);
-    int from_rank = 1 + (from / 8);
-    char to_file = 'a' + (to % 8);
-    int to_rank = 1 + (to / 8);
-    
-    printf("%c%d%c%d", from_file, from_rank, to_file, to_rank);
-    
-    if (GET_PROMOTED(move) != EMPTY) {
-        char piece_char[] = "pnbrqk";
-        // Convert piece index to char (e.g., wn -> n)
-        int p = GET_PROMOTED(move);
-        if (p >= bp) p -= 6;
-        printf("%c", piece_char[p]);
-    }
-    
-    if (move & MFLAG_CA) printf(" (Castle)");
-    if (move & MFLAG_EP) printf(" (EP)");
-    if (move & MFLAG_CAP) printf(" (Capture)");
-    printf("\n");
-}
-
-void test_position(char *fen) {
+void run_perft(char *fen, int depth) {
     Board board;
-    MoveList list;
-    
-    printf("\n--- Testing Position ---\n");
-    printf("FEN: %s\n", fen);
     parse_fen(fen, &board);
-    print_board(&board);
+    printf("\nPerft Test: %s\n", fen);
     
-    printf("Generating moves for %s...\n", (board.side == white) ? "white" : "black");
-    generate_all_moves(&board, &list);
-    
-    printf("Total moves generated: %d\n", list.count);
-    for (int i = 0; i < list.count; i++) {
-        printf("Move %2d: ", i + 1);
-        print_move(list.moves[i].move);
+    for (int d = 1; d <= depth; d++) {
+        clock_t start = clock();
+        long long nodes = perft_test(&board, d);
+        clock_t end = clock();
+        double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
+        printf("Depth %d: %lld nodes (%.2f s)\n", d, nodes, time_spent);
     }
 }
 
 int main() {
     init_magics();
     
-    // Test White
-    test_position("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
-    
-    // Test Black
-    test_position("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1");
+    run_perft(startFEN, 4);
+    run_perft("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3);
 
     return 0;
 }

@@ -11,6 +11,8 @@
 #include "kings.h"
 #include "knights.h"
 #include "sliding.h"
+#include <stdbool.h>
+#include "movegen.h"
 
 #define startFEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
