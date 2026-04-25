@@ -73,6 +73,8 @@ void reset_board(Board *board) {
 
 /** @brief Parses a FEN string and sets the board state accordingly. */
 void parse_fen(const char *fen, Board *board) {
+    reset_board(board);
+    
     for (int rank = 7; rank >= 0; rank--) {
         for (int file = 0; file <= 7; file++) {
             int square = rank * 8 + file;
@@ -110,8 +112,43 @@ void parse_fen(const char *fen, Board *board) {
         }
     }
 
-    fen++;
+    // Side to move
+    while (*fen == ' ') fen++;
     board->side = (*fen == 'w') ? white : black;
+    fen++;
+
+    // Castling rights
+    while (*fen == ' ') fen++;
+    if (*fen != '-') {
+        while (*fen != ' ' && *fen != '\0') {
+            switch (*fen) {
+                case 'K': board->castle |= WKCA; break;
+                case 'Q': board->castle |= WQCA; break;
+                case 'k': board->castle |= BKCA; break;
+                case 'q': board->castle |= BQCA; break;
+            }
+            fen++;
+        }
+    } else {
+        fen++;
+    }
+
+    // En passant square
+    while (*fen == ' ') fen++;
+    if (*fen != '-') {
+        int file = fen[0] - 'a';
+        int rank = fen[1] - '1';
+        board->enpassant = rank * 8 + file;
+        fen += 2;
+    } else {
+        board->enpassant = NO_SQ;
+        fen++;
+    }
+
+    // Update occupancies
+    for (int p = wp; p <= wk; p++) board->occupancies[white] |= board->bitboards[p];
+    for (int p = bp; p <= bk; p++) board->occupancies[black] |= board->bitboards[p];
+    board->occupancies[both] = board->occupancies[white] | board->occupancies[black];
 }
 
 U64 GeneratePosKey(const Board *pos) {
