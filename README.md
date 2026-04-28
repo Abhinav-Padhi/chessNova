@@ -15,7 +15,7 @@ low-level bit manipulation and move generation foundations.
 - **Magic Bitboards:** Implemented for sliding piece attacks.
 
 ## Future Focus
-- Evaluation and Search to be added
+- implement EVALUATION.md
 - Alpha-Beta search implementation.
 - UCI protocol integration.
 - Pawn functions implementation.
