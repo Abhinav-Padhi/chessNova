@@ -1,6 +1,9 @@
 #include "evaluate.h"
 #include "types.h"
 #include "bitboard.h"
+#include "pawns.h"
+#include "kings.h"
+#include "search.h"
 
 /* Piece-Square Tables (White's perspective) */
 /* PeSTO's tables or similar style are common for tapered eval */
@@ -150,6 +153,39 @@ const int rook_phase = 2;
 const int queen_phase = 4;
 const int total_phase = 24; // (2*1 + 2*1 + 2*2 + 1*4) * 2
 
+/* Masks for evaluation */
+U64 file_masks[64];
+U64 adj_file_masks[64];
+U64 passed_masks[2][64];
+
+void init_evaluation_masks() {
+    for (int sq = 0; sq < 64; sq++) {
+        int f = sq % 8;
+        int r = sq / 8;
+        
+        file_masks[sq] = arrFiles[f];
+        
+        adj_file_masks[sq] = 0;
+        if (f > 0) adj_file_masks[sq] |= arrFiles[f-1];
+        if (f < 7) adj_file_masks[sq] |= arrFiles[f+1];
+        
+        passed_masks[white][sq] = 0;
+        passed_masks[black][sq] = 0;
+        
+        for (int rank = r + 1; rank < 8; rank++) {
+            passed_masks[white][sq] |= (1ULL << (rank * 8 + f));
+            if (f > 0) passed_masks[white][sq] |= (1ULL << (rank * 8 + f - 1));
+            if (f < 7) passed_masks[white][sq] |= (1ULL << (rank * 8 + f + 1));
+        }
+        
+        for (int rank = r - 1; rank >= 0; rank--) {
+            passed_masks[black][sq] |= (1ULL << (rank * 8 + f));
+            if (f > 0) passed_masks[black][sq] |= (1ULL << (rank * 8 + f - 1));
+            if (f < 7) passed_masks[black][sq] |= (1ULL << (rank * 8 + f + 1));
+        }
+    }
+}
+
 int evaluate(const Board *board) {
     int mg_score = 0;
     int eg_score = 0;
@@ -157,13 +193,40 @@ int evaluate(const Board *board) {
     U64 bitboard;
     int sq;
 
+    int white_king_sq = (board->bitboards[wk]) ? get_lsb(board->bitboards[wk]) : NO_SQ;
+    int black_king_sq = (board->bitboards[bk]) ? get_lsb(board->bitboards[bk]) : NO_SQ;
+    
+    if (white_king_sq == NO_SQ) return -MATE_SCORE;
+    if (black_king_sq == NO_SQ) return MATE_SCORE;
+
+    U64 white_king_zone = arrKingAttacks[white_king_sq];
+    U64 black_king_zone = arrKingAttacks[black_king_sq];
+
     // --- White Pieces ---
     bitboard = board->bitboards[wp];
     while (bitboard) {
         sq = pop_lsb(&bitboard);
         mg_score += MG_PAWN_VALUE + pawn_pst[0][sq];
         eg_score += EG_PAWN_VALUE + pawn_pst[1][sq];
+        
+        // Double pawn penalty
+        if (count_bits(board->bitboards[wp] & file_masks[sq]) > 1) {
+            mg_score += MG_DOUBLED_PAWN;
+            eg_score += EG_DOUBLED_PAWN;
+        }
+        
+        // Isolated pawn penalty
+        if (!(board->bitboards[wp] & adj_file_masks[sq])) {
+            mg_score += MG_ISOLATED_PAWN;
+            eg_score += EG_ISOLATED_PAWN;
+        }
+        
+        // Passed pawn bonus
+        if (!(board->bitboards[bp] & passed_masks[white][sq])) {
+            eg_score += EG_PASSED_PAWN;
+        }
     }
+    
     bitboard = board->bitboards[wn];
     while (bitboard) {
         sq = pop_lsb(&bitboard);
@@ -172,6 +235,10 @@ int evaluate(const Board *board) {
         game_phase += knight_phase;
     }
     bitboard = board->bitboards[wb];
+    if (count_bits(bitboard) >= 2) {
+        mg_score += MG_BISHOP_PAIR;
+        eg_score += EG_BISHOP_PAIR;
+    }
     while (bitboard) {
         sq = pop_lsb(&bitboard);
         mg_score += MG_BISHOP_VALUE + bishop_pst[0][sq];
@@ -205,6 +272,23 @@ int evaluate(const Board *board) {
         sq = pop_lsb(&bitboard);
         mg_score -= (MG_PAWN_VALUE + pawn_pst[0][FLIP(sq)]);
         eg_score -= (EG_PAWN_VALUE + pawn_pst[1][FLIP(sq)]);
+        
+        // Double pawn penalty
+        if (count_bits(board->bitboards[bp] & file_masks[sq]) > 1) {
+            mg_score -= MG_DOUBLED_PAWN;
+            eg_score -= EG_DOUBLED_PAWN;
+        }
+        
+        // Isolated pawn penalty
+        if (!(board->bitboards[bp] & adj_file_masks[sq])) {
+            mg_score -= MG_ISOLATED_PAWN;
+            eg_score -= EG_ISOLATED_PAWN;
+        }
+        
+        // Passed pawn bonus
+        if (!(board->bitboards[wp] & passed_masks[black][sq])) {
+            eg_score -= EG_PASSED_PAWN;
+        }
     }
     bitboard = board->bitboards[bn];
     while (bitboard) {
@@ -214,6 +298,10 @@ int evaluate(const Board *board) {
         game_phase += knight_phase;
     }
     bitboard = board->bitboards[bb];
+    if (count_bits(bitboard) >= 2) {
+        mg_score -= MG_BISHOP_PAIR;
+        eg_score -= EG_BISHOP_PAIR;
+    }
     while (bitboard) {
         sq = pop_lsb(&bitboard);
         mg_score -= (MG_BISHOP_VALUE + bishop_pst[0][FLIP(sq)]);
@@ -240,6 +328,17 @@ int evaluate(const Board *board) {
         mg_score -= (MG_KING_VALUE + king_pst[0][FLIP(sq)]);
         eg_score -= (EG_KING_VALUE + king_pst[1][FLIP(sq)]);
     }
+
+    // --- King Safety Calculation ---
+    // Penalize enemy pieces in the king zone
+    U64 white_attackers = (board->bitboards[bn] | board->bitboards[bb] | board->bitboards[br] | board->bitboards[bq] | board->bitboards[bp]) & white_king_zone;
+    U64 black_attackers = (board->bitboards[wn] | board->bitboards[wb] | board->bitboards[wr] | board->bitboards[wq] | board->bitboards[wp]) & black_king_zone;
+    
+    mg_score += count_bits(white_attackers) * MG_KING_ATTACK_PENALTY;
+    eg_score += count_bits(white_attackers) * EG_KING_ATTACK_PENALTY;
+    
+    mg_score -= count_bits(black_attackers) * MG_KING_ATTACK_PENALTY;
+    eg_score -= count_bits(black_attackers) * EG_KING_ATTACK_PENALTY;
 
     // Tapered evaluation interpolation
     int mg_phase = game_phase;

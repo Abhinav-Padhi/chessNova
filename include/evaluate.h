@@ -19,7 +19,27 @@
 #define EG_QUEEN_VALUE 936
 #define EG_KING_VALUE 0
 
+/* Positional Constants - Middlegame */
+#define MG_BISHOP_PAIR 30
+#define MG_ISOLATED_PAWN -10
+#define MG_DOUBLED_PAWN -15
+
+/* Positional Constants - Endgame */
+#define EG_BISHOP_PAIR 50
+#define EG_ISOLATED_PAWN -20
+#define EG_DOUBLED_PAWN -20
+#define EG_PASSED_PAWN 20
+
+/* King Safety */
+#define MG_KING_ATTACK_PENALTY -5
+#define EG_KING_ATTACK_PENALTY -2
+
 #define FLIP(sq) ((sq) ^ 56)
+
+/**
+ * Initializes masks used for evaluation (e.g., pawn masks).
+ */
+void init_evaluation_masks();
 
 /**
  * Returns a score for the current position from the perspective of the side to move.

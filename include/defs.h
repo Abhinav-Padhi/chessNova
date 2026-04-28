@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include "movegen.h"
 #include "evaluate.h"
+#include "search.h"
 
 #define startFEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 

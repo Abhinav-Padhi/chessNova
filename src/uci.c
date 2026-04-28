@@ -1,5 +1,32 @@
 #include "defs.h"
 
+char* move_to_string(uint32_t move) {
+    static char move_str[6];
+    int from = GET_FROM(move);
+    int to = GET_TO(move);
+    int promoted = GET_PROMOTED(move);
+
+    move_str[0] = 'a' + (from % 8);
+    move_str[1] = '1' + (from / 8);
+    move_str[2] = 'a' + (to % 8);
+    move_str[3] = '1' + (to / 8);
+    move_str[4] = '\0';
+
+    if (promoted != EMPTY) {
+        char pchar = ' ';
+        switch (promoted) {
+            case wn: case bn: pchar = 'n'; break;
+            case wb: case bb: pchar = 'b'; break;
+            case wr: case br: pchar = 'r'; break;
+            case wq: case bq: pchar = 'q'; break;
+        }
+        move_str[4] = pchar;
+        move_str[5] = '\0';
+    }
+
+    return move_str;
+}
+
 /** @brief Handles the UCI loop, processing commands from the user. */
 void uci_loop() {
     char line[2048];
