@@ -39,7 +39,7 @@
 /**
  * Initializes masks used for evaluation (e.g., pawn masks).
  */
-void init_evaluation_masks();
+extern void init_evaluation_masks();
 
 /**
  * Returns a score for the current position from the perspective of the side to move.

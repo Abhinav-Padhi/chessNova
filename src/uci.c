@@ -36,8 +36,8 @@ uint32_t parse_move(char *ptr, Board *board) {
     if (ptr[3] > '8' || ptr[3] < '1') return 0;
     if (ptr[2] > 'h' || ptr[2] < 'a') return 0;
 
-    int from = (ptr[1] - '1') * 8 + (ptr[0] - 'a');
-    int to = (ptr[3] - '1') * 8 + (ptr[2] - 'a');
+    uint32_t from = (ptr[1] - '1') * 8 + (ptr[0] - 'a');
+    uint32_t to = (ptr[3] - '1') * 8 + (ptr[2] - 'a');
 
     MoveList list;
     generate_all_moves(board, &list);
@@ -89,16 +89,25 @@ void parse_position(char *line, Board *board) {
     }
 }
 
+static int initialized = 0;
+
+void ensure_initialized() {
+    if (!initialized) {
+        init_magics();
+        init_evaluation_masks();
+        initialized = 1;
+    }
+}
+
 void uci_loop() {
     char line[2048];
     Board board;
     parse_fen(startFEN, &board);
 
     setbuf(stdout, NULL);
-    setbuf(stdin, NULL);
 
     while (1) {
-        if (!fgets(line, sizeof(line), stdin)) continue;
+        if (!fgets(line, sizeof(line), stdin)) break;
         if (line[0] == '\n') continue;
 
         if (strncmp(line, "uci", 3) == 0) {
@@ -106,12 +115,15 @@ void uci_loop() {
             printf("id author Mrgreenapple24\n");
             printf("uciok\n");
         } else if (strncmp(line, "isready", 7) == 0) {
+            ensure_initialized();
             printf("readyok\n");
         } else if (strncmp(line, "position", 8) == 0) {
+            ensure_initialized();
             parse_position(line, &board);
         } else if (strncmp(line, "ucinewgame", 10) == 0) {
             parse_fen(startFEN, &board);
         } else if (strncmp(line, "go", 2) == 0) {
+            ensure_initialized();
             uint32_t move = search_best_move(&board, 5);
             printf("bestmove %s\n", move_to_string(move));
         } else if (strncmp(line, "quit", 4) == 0) {

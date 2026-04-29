@@ -12,6 +12,6 @@
  * @param depth The depth to search.
  * @return The packed 32-bit best move found.
  */
-uint32_t search_best_move(Board *board, int depth);
+extern uint32_t search_best_move(Board *board, int depth);
 
 #endif

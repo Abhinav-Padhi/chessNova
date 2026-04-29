@@ -20,14 +20,25 @@ endif()
 # Include directories (Equivalent to -Iinclude)
 include_directories(include)
 
-# Gather Source Files (Equivalent to wildcard)
-file(GLOB SRCS "src/*.c")
+# Gather Source Files
+file(GLOB ALL_SRCS "src/*.c")
 
-# Define the executable (Equivalent to TARGET)
-add_executable(chess_engine ${SRCS})
+# Sources for the main engine (everything except test_search.c)
+set(ENGINE_SRCS ${ALL_SRCS})
+list(REMOVE_ITEM ENGINE_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/test_search.c")
+
+# Sources for the tests (everything except main.c)
+set(TEST_SRCS ${ALL_SRCS})
+list(REMOVE_ITEM TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/main.c")
+
+# Define the executable
+add_executable(chess_engine ${ENGINE_SRCS})
+
+# Define the test executable
+add_executable(test_search ${TEST_SRCS})
 
 # Output directory configuration
 # This keeps the binary in a 'bin' folder within your build directory
-set_target_properties(chess_engine PROPERTIES
+set_target_properties(chess_engine test_search PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
