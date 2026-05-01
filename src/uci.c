@@ -1,4 +1,5 @@
 #include "defs.h"
+#include "polyglot.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -129,8 +130,42 @@ void uci_loop() {
             parse_position(line, &board);
         } else if (strncmp(line, "ucinewgame", 10) == 0) {
             parse_fen(startFEN, &board);
+        } else if (strncmp(line, "setoption", 9) == 0) {
+            char *name = strstr(line, "name");
+            char *value = strstr(line, "value");
+            if (name && value) {
+                name += 5;
+                char *end = strstr(name, "value");
+                if (end) *end = '\0';
+                
+                /* Trim whitespace from name */
+                while(*name == ' ') name++;
+                char *n_end = name + strlen(name) - 1;
+                while(n_end > name && *n_end == ' ') { *n_end = '\0'; n_end--; }
+
+                value += 6;
+                /* Trim whitespace from value */
+                while(*value == ' ') value++;
+                char *v_end = value + strlen(value) - 1;
+                while(v_end > value && (*v_end == ' ' || *v_end == '\n' || *v_end == '\r')) { *v_end = '\0'; v_end--; }
+
+                if (strcmp(name, "OwnBook") == 0) {
+                    if (strcmp(value, "true") == 0) use_book = true;
+                    else if (strcmp(value, "false") == 0) use_book = false;
+                } else if (strcmp(name, "BookFile") == 0) {
+                    strncpy(book_file_path, value, 255);
+                }
+            }
         } else if (strncmp(line, "go", 2) == 0) {
             ensure_initialized();
+
+            /* Try to find a move in the opening book first */
+            uint32_t book_move = get_polyglot_move(&board);
+            if (book_move != 0) {
+                printf("bestmove %s\n", move_to_string(book_move));
+                continue;
+            }
+
             SearchInfo info;
             memset(&info, 0, sizeof(SearchInfo));
             
