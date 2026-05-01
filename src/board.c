@@ -353,3 +353,35 @@ void unmake_move(Board *board) {
         }
     }
 }
+
+/**
+ * @brief Toggles the side to move without making a move on the board.
+ * @param board Pointer to the Board structure.
+ */
+void make_null_move(Board *board) {
+    board->history[board->hisply].move = 0;
+    board->history[board->hisply].castle = board->castle;
+    board->history[board->hisply].enpassant = board->enpassant;
+    board->history[board->hisply].fiftyMove = board->fiftyMove;
+    board->history[board->hisply].posKey = board->posKey;
+
+    board->enpassant = NO_SQ;
+    board->side ^= 1;
+    board->hisply++;
+    board->ply++;
+}
+
+/**
+ * @brief Reverts a null move.
+ * @param board Pointer to the Board structure.
+ */
+void unmake_null_move(Board *board) {
+    board->hisply--;
+    board->ply--;
+
+    board->castle = board->history[board->hisply].castle;
+    board->enpassant = board->history[board->hisply].enpassant;
+    board->fiftyMove = board->history[board->hisply].fiftyMove;
+    board->posKey = board->history[board->hisply].posKey;
+    board->side ^= 1;
+}

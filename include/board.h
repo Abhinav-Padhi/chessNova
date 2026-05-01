@@ -34,5 +34,7 @@ void parse_fen(const char *fen, Board *board);
 int get_piece_at(const Board *board, int sq);
 bool make_move(Board *board, uint32_t move);
 void unmake_move(Board *board);
+void make_null_move(Board *board);
+void unmake_null_move(Board *board);
 
 #endif

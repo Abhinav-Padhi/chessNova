@@ -19,6 +19,9 @@ typedef struct {
 
     int quit;
     int stopped;
+
+    uint32_t killer_moves[2][MAX_PLY];
+    int history_moves[12][64];
 } SearchInfo;
 
 /**

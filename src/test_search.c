@@ -40,5 +40,8 @@ int main() {
     // It's black's turn. White threatens Qxf7#. Black should defend.
     test_search("rnb1kbnr/pppp1ppp/8/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR b KQkq - 0 1", 3, "Defend Scholar's Mate");
 
+    // Middle game position
+    test_search("r1bqk2r/pppp1ppp/2n2n2/4p3/2B1P3/2P2N2/PP1P1PPP/RNBQK2R w KQkq - 0 5", 6, "Standard Opening (Depth 6)");
+
     return 0;
 }
