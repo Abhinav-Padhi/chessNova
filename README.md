@@ -10,17 +10,19 @@ low-level bit manipulation and move generation foundations.
     - Pre-calculated tables for Leapers (Knights, Kings).
     - Sliding piece logic (Rooks, Bishops, Queens).
     - Pawn capture and push bitmask generation.
-- **Board State:** Initial infrastructure for piece placement and square control.
-- **Legal move generation and validation:** Perft test passed.
-- **Magic Bitboards:** Implemented for sliding piece attacks.
+- **Board State:** Infrastructure for piece placement, square control, and Zobrist hashing.
+- **Move Generation:** Full legal move generation and validation (Perft verified).
+- **Magic Bitboards:** High-performance sliding piece attack generation.
+- **Search Engine:** Alpha-Beta search with Iterative Deepening, Quiescence search, and move ordering (MVV-LVA, Killers, History).
+- **Evaluation:** Tapered evaluation system with Piece-Square Tables and initial pawn/king safety heuristics.
+- **UCI Protocol:** Support for the Universal Chess Interface (UCI) to connect with GUIs.
 
 ## Future Focus
-- implement EVALUATION.md
-- Alpha-Beta search implementation.
-- UCI protocol integration.
-- Pawn functions implementation.
-- Opening Books
-- Closing Books
+See [TODO.md](./TODO.md) for a detailed roadmap. Key priorities include:
+- **Transposition Tables (TT):** Improving search efficiency via position caching.
+- **Endgame Tablebases:** Integrating "Closing Books" (e.g., Syzygy).
+- **Evaluation Tuning:** Refining pawn structure, castling, and king safety heuristics.
+- **Automated Tuning:** Implementing Texel tuning for weight optimization.
 
 # Building the Project
 

@@ -137,7 +137,7 @@ void uci_loop() {
                 name += 5;
                 char *end = strstr(name, "value");
                 if (end) *end = '\0';
-                
+
                 /* Trim whitespace from name */
                 while(*name == ' ') name++;
                 char *n_end = name + strlen(name) - 1;
@@ -158,17 +158,16 @@ void uci_loop() {
             }
         } else if (strncmp(line, "go", 2) == 0) {
             ensure_initialized();
-
-            /* Try to find a move in the opening book first */
+            /*
             uint32_t book_move = get_polyglot_move(&board);
             if (book_move != 0) {
                 printf("bestmove %s\n", move_to_string(book_move));
                 continue;
-            }
+            } */
 
             SearchInfo info;
             memset(&info, 0, sizeof(SearchInfo));
-            
+
             int depth = -1;
             int movetime = -1;
             int time = -1;
