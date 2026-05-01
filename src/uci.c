@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+
+U64 get_time_ms() {
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    return (U64)t.tv_sec * 1000 + (U64)t.tv_usec / 1000;
+}
 
 char* move_to_string(uint32_t move) {
     static char move_str[6];
@@ -124,7 +131,44 @@ void uci_loop() {
             parse_fen(startFEN, &board);
         } else if (strncmp(line, "go", 2) == 0) {
             ensure_initialized();
-            uint32_t move = search_best_move(&board, 5);
+            SearchInfo info;
+            memset(&info, 0, sizeof(SearchInfo));
+            
+            int depth = -1;
+            int movetime = -1;
+            int time = -1;
+            int inc = 0;
+            int movestogo = 30;
+
+            char *ptr = NULL;
+            if ((ptr = strstr(line, "infinite"))) {
+                info.infinite = 1;
+            }
+            if ((ptr = strstr(line, "winc")) && board.side == white) inc = atoi(ptr + 5);
+            if ((ptr = strstr(line, "binc")) && board.side == black) inc = atoi(ptr + 5);
+            if ((ptr = strstr(line, "wtime")) && board.side == white) time = atoi(ptr + 6);
+            if ((ptr = strstr(line, "btime")) && board.side == black) time = atoi(ptr + 6);
+            if ((ptr = strstr(line, "movestogo"))) movestogo = atoi(ptr + 10);
+            if ((ptr = strstr(line, "movetime"))) movetime = atoi(ptr + 9);
+            if ((ptr = strstr(line, "depth"))) depth = atoi(ptr + 6);
+
+            if (movetime != -1) {
+                time = movetime;
+                movestogo = 1;
+            }
+
+            info.starttime = get_time_ms();
+            info.depth = (depth == -1) ? 64 : depth;
+
+            if (time != -1) {
+                info.timeset = 1;
+                time /= movestogo;
+                time -= 50; // buffer
+                if (time < 0) time = 0;
+                info.stoptime = info.starttime + time + inc;
+            }
+
+            uint32_t move = search_best_move(&board, &info);
             printf("bestmove %s\n", move_to_string(move));
         } else if (strncmp(line, "quit", 4) == 0) {
             break;

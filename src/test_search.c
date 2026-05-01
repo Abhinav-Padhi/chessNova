@@ -7,14 +7,20 @@ void test_search(char *fen, int depth, char *description) {
     parse_fen(fen, &board);
     printf("Test: %s\n", description);
     printf("FEN: %s\n", fen);
-    uint32_t move = search_best_move(&board, depth);
+
+    SearchInfo info;
+    memset(&info, 0, sizeof(SearchInfo));
+    info.depth = depth;
+    info.starttime = get_time_ms();
+
+    uint32_t move = search_best_move(&board, &info);
     printf("Best Move Found: %s\n\n", move_to_string(move));
 }
 
 int main() {
     init_magics();
     init_evaluation_masks();
-    
+
     printf("--- SEARCH TESTS ---\n\n");
 
     // Mate in 1

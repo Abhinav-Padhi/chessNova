@@ -2,9 +2,23 @@
 #include <stdio.h>
 
 /**
+ * Checks if the search should be stopped due to time or other conditions.
+ */
+static void check_up(SearchInfo *info) {
+    if (info->timeset && get_time_ms() > info->stoptime) {
+        info->stopped = 1;
+    }
+}
+
+/**
  * Quiescence search to handle the horizon effect by searching captures until the position is quiet.
  */
-static int quiescence(Board *board, int alpha, int beta) {
+static int quiescence(Board *board, SearchInfo *info, int alpha, int beta) {
+    if ((info->nodes & 2047) == 0) {
+        check_up(info);
+    }
+    info->nodes++;
+
     int stand_pat = evaluate(board);
     if (stand_pat >= beta) return beta;
     if (alpha < stand_pat) alpha = stand_pat;
@@ -17,8 +31,10 @@ static int quiescence(Board *board, int alpha, int beta) {
         if (!(move & MFLAG_CAP)) continue;
 
         if (!make_move(board, move)) continue;
-        int score = -quiescence(board, -beta, -alpha);
+        int score = -quiescence(board, info, -beta, -alpha);
         unmake_move(board);
+
+        if (info->stopped) return 0;
 
         if (score >= beta) return beta;
         if (score > alpha) alpha = score;
@@ -29,8 +45,13 @@ static int quiescence(Board *board, int alpha, int beta) {
 /**
  * Alpha-Beta pruning search.
  */
-static int alpha_beta(Board *board, int depth, int alpha, int beta) {
-    if (depth == 0) return quiescence(board, alpha, beta);
+static int alpha_beta(Board *board, SearchInfo *info, int depth, int alpha, int beta) {
+    if (depth == 0) return quiescence(board, info, alpha, beta);
+
+    if ((info->nodes & 2047) == 0) {
+        check_up(info);
+    }
+    info->nodes++;
 
     MoveList list;
     generate_all_moves(board, &list);
@@ -41,8 +62,10 @@ static int alpha_beta(Board *board, int depth, int alpha, int beta) {
 
         if (!make_move(board, move)) continue;
         legal_moves++;
-        int score = -alpha_beta(board, depth - 1, -beta, -alpha);
+        int score = -alpha_beta(board, info, depth - 1, -beta, -alpha);
         unmake_move(board);
+
+        if (info->stopped) return 0;
 
         if (score >= beta) return beta; // Pruning
         if (score > alpha) alpha = score;
@@ -56,7 +79,7 @@ static int alpha_beta(Board *board, int depth, int alpha, int beta) {
                 return -MATE_SCORE + board->ply; // Checkmate
             }
         } else {
-             return -MATE_SCORE + board->ply; // King missing is effectively checkmate
+             return -MATE_SCORE + board->ply;
         }
         return 0; // Stalemate
     }
@@ -64,26 +87,44 @@ static int alpha_beta(Board *board, int depth, int alpha, int beta) {
     return alpha;
 }
 
-uint32_t search_best_move(Board *board, int depth) {
-    MoveList list;
-    generate_all_moves(board, &list);
-
+uint32_t search_best_move(Board *board, SearchInfo *info) {
     uint32_t best_move = 0;
     int best_score = -INFINITY;
+    int current_depth = 1;
 
-    for (int i = 0; i < list.count; i++) {
-        uint32_t move = list.moves[i].move;
+    // Iterative deepening
+    for (current_depth = 1; current_depth <= info->depth; current_depth++) {
+        MoveList list;
+        generate_all_moves(board, &list);
 
-        if (!make_move(board, move)) continue;
-        int score = -alpha_beta(board, depth - 1, -INFINITY, INFINITY);
-        unmake_move(board);
+        uint32_t depth_best_move = 0;
+        int depth_best_score = -INFINITY;
 
-        if (score > best_score) {
-            best_score = score;
-            best_move = move;
+        for (int i = 0; i < list.count; i++) {
+            uint32_t move = list.moves[i].move;
+
+            if (!make_move(board, move)) continue;
+            int score = -alpha_beta(board, info, current_depth - 1, -INFINITY, INFINITY);
+            unmake_move(board);
+
+            if (info->stopped) break;
+
+            if (score > depth_best_score) {
+                depth_best_score = score;
+                depth_best_move = move;
+            }
         }
+
+        if (info->stopped) break;
+
+        best_move = depth_best_move;
+        best_score = depth_best_score;
+
+        printf("info score cp %d depth %d nodes %lu time %lu\n", 
+               best_score, current_depth, info->nodes, get_time_ms() - info->starttime);
+        
+        if (best_score > MATE_SCORE - 100 || best_score < -MATE_SCORE + 100) break;
     }
 
-    printf("info score cp %d depth %d\n", best_score, depth);
     return best_move;
 }
