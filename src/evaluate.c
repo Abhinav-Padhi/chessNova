@@ -204,8 +204,13 @@ int evaluate(const Board *board) {
 
     // --- White Pieces ---
     bitboard = board->bitboards[wp];
+    /*
     while (bitboard) {
         sq = pop_lsb(&bitboard);
+        int r = sq/8;
+        int f = sq%8;
+        r = 7-r;
+        sq = 8*r + f;
         mg_score += MG_PAWN_VALUE + pawn_pst[0][sq];
         eg_score += EG_PAWN_VALUE + pawn_pst[1][sq];
         
@@ -225,6 +230,52 @@ int evaluate(const Board *board) {
         if (!(board->bitboards[bp] & passed_masks[white][sq])) {
             eg_score += EG_PASSED_PAWN;
         }
+    }
+    
+    */
+
+    while (bitboard) {
+        sq = pop_lsb(&bitboard);
+        int r = sq/8;
+        int f = sq%8;
+        r = 7-r;
+        sq = 8*r + f;
+        mg_score += MG_PAWN_VALUE + pawn_pst[0][sq];     //Assigning values to pawns and suming it up
+        eg_score += EG_PAWN_VALUE + pawn_pst[1][sq];
+    }
+    bitboard = board->bitboards[bp];
+    while (bitboard) {
+        sq = pop_lsb(&bitboard);
+        mg_score -= MG_PAWN_VALUE + pawn_pst[0][sq];     //Assigning values to pawns and suming it up
+        eg_score -= EG_PAWN_VALUE + pawn_pst[1][sq];
+    }
+    for (int i=0;i<count_bits(wPawnsInfrontOwn(board->bitboards[wp]));i++)
+    {
+        mg_score+=MG_DOUBLED_PAWN;                       // Penalty for double pawns
+        eg_score += EG_DOUBLED_PAWN;
+    }
+    for (int i=0;i<count_bits(isolanis(board->bitboards[wp]));i++)
+    {   
+        mg_score+=MG_ISOLATED_PAWN;                        // Penalty for isolated pawns
+        eg_score += EG_ISOLATED_PAWN;   
+    }
+    for (int i=0;i<count_bits(wPassedPawns(board->bitboards[wp],board->bitboards[bp]));i++)
+    {
+        eg_score += EG_PASSED_PAWN;                         // Higher score for passed pawns
+    }
+    for (int i=0;i<count_bits(bPawnsInfrontOwn(board->bitboards[bp]));i++)
+    {
+        mg_score-=MG_DOUBLED_PAWN;                       // Higher score for black double pawns
+        eg_score -= EG_DOUBLED_PAWN;
+    }
+    for (int i=0;i<count_bits(isolanis(board->bitboards[bp]));i++)
+    {   
+        mg_score-=MG_ISOLATED_PAWN;                        // Higher score for black isolated pawns
+        eg_score -= EG_ISOLATED_PAWN;   
+    }
+    for (int i=0;i<count_bits(bPassedPawns(board->bitboards[wp],board->bitboards[bp]));i++)
+    {
+        eg_score -= EG_PASSED_PAWN;                         // Penalty for black passed pawns
     }
     
     bitboard = board->bitboards[wn];
@@ -267,9 +318,14 @@ int evaluate(const Board *board) {
     }
 
     // --- Black Pieces ---
+    /*
     bitboard = board->bitboards[bp];
     while (bitboard) {
         sq = pop_lsb(&bitboard);
+        int r = sq/8;
+        int f = sq%8;
+        r = 7-r;
+        sq = 8*r + f;
         mg_score -= (MG_PAWN_VALUE + pawn_pst[0][FLIP(sq)]);
         eg_score -= (EG_PAWN_VALUE + pawn_pst[1][FLIP(sq)]);
         
@@ -290,6 +346,7 @@ int evaluate(const Board *board) {
             eg_score -= EG_PASSED_PAWN;
         }
     }
+        */
     bitboard = board->bitboards[bn];
     while (bitboard) {
         sq = pop_lsb(&bitboard);
