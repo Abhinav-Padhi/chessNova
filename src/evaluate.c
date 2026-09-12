@@ -251,7 +251,18 @@ int evaluate(const Board *board) {
         mg_score += MG_ROOK_VALUE + rook_pst[0][sq];
         eg_score += EG_ROOK_VALUE + rook_pst[1][sq];
         game_phase += rook_phase;
+
+        // White rook on 7th rank bonus
+        if ((1ULL << sq) & rank7) {
+            mg_score += MG_ROOK_ON_7TH;
+            eg_score += EG_ROOK_ON_7TH;
+            if (black_king_sq != NO_SQ && ((1ULL << black_king_sq) & rank8)) {
+                mg_score += MG_ROOK_ON_7TH_TRAPPED_KING;
+                eg_score += EG_ROOK_ON_7TH_TRAPPED_KING;
+            }
+        }
     }
+
     bitboard = board->bitboards[wq];
     while (bitboard) {
         sq = pop_lsb(&bitboard);
@@ -314,6 +325,16 @@ int evaluate(const Board *board) {
         mg_score -= (MG_ROOK_VALUE + rook_pst[0][FLIP(sq)]);
         eg_score -= (EG_ROOK_VALUE + rook_pst[1][FLIP(sq)]);
         game_phase += rook_phase;
+
+        // Black rook on 2nd rank bonus
+        if ((1ULL << sq) & rank2) {
+            mg_score -= MG_ROOK_ON_7TH;
+            eg_score -= EG_ROOK_ON_7TH;
+            if (white_king_sq != NO_SQ && ((1ULL << white_king_sq) & rank1)) {
+                mg_score -= MG_ROOK_ON_7TH_TRAPPED_KING;
+                eg_score -= EG_ROOK_ON_7TH_TRAPPED_KING;
+            }
+        }
     }
     bitboard = board->bitboards[bq];
     while (bitboard) {

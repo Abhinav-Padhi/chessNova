@@ -10,6 +10,11 @@ typedef uint64_t U64;
 #define notAFile 0xfefefefefefefefeULL
 #define notHFile 0x7f7f7f7f7f7f7f7fULL
 
+#define rank1 0x00000000000000FFULL
+#define rank2 0x000000000000FF00ULL
+#define rank7 0x00FF000000000000ULL
+#define rank8 0xFF00000000000000ULL
+
 enum { white, black, both };
 enum { wp, wn, wb, wr, wq, wk, bp, bn, bb, br, bq, bk, EMPTY };
 
