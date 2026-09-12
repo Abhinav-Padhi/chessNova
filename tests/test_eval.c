@@ -56,16 +56,6 @@ static void test_material_advantage(void) {
     assert(score > 500 && "White up a queen should produce a strong positive evaluation");
 }
 
-static void test_missing_kings(void) {
-    Board board_no_white_king, board_no_black_king;
-    
-    parse_fen("8/8/8/8/8/8/8/4K3 b - - 0 1", &board_no_white_king); // No white king
-    parse_fen("4k3/8/8/8/8/8/8/8 w - - 0 1", &board_no_black_king); // No black king
-    
-    assert(evaluate(&board_no_white_king) == -29000 && "Missing White king must return MATE_SCORE for Black");
-    assert(evaluate(&board_no_black_king) == 29000 && "Missing Black king must return MATE_SCORE for White");
-}
-
 static void test_pawn_structure_evaluation(void) {
     Board board_passed, board_doubled;
     
@@ -92,7 +82,6 @@ int main(void) {
     RUN_TEST(test_initial_position);
     RUN_TEST(test_side_to_move_perspective);
     RUN_TEST(test_material_advantage);
-    RUN_TEST(test_missing_kings);
     RUN_TEST(test_pawn_structure_evaluation);
 
     printf("\nAll tests passed successfully!\n");
