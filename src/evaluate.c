@@ -387,6 +387,8 @@ int evaluate(const Board *board) {
     }
 
     // --- King Safety Calculation ---
+    if (board->bitboards[wk] & ((1ULL<<g1) | (1ULL<<c1))) mg_score+=300;
+    if (board->bitboards[bk] & ((1ULL<<g8) | (1ULL<<c8))) mg_score-=300;
     // Penalize enemy pieces in the king zone
     U64 white_attackers = (board->bitboards[bn] | board->bitboards[bb] | board->bitboards[br] | board->bitboards[bq] | board->bitboards[bp]) & white_king_zone;
     U64 black_attackers = (board->bitboards[wn] | board->bitboards[wb] | board->bitboards[wr] | board->bitboards[wq] | board->bitboards[wp]) & black_king_zone;
