@@ -23,12 +23,16 @@
 #define MG_BISHOP_PAIR 30
 #define MG_ISOLATED_PAWN -10
 #define MG_DOUBLED_PAWN -15
+#define MG_ROOK_ON_7TH 20
+#define MG_ROOK_ON_7TH_TRAPPED_KING 10
 
 /* Positional Constants - Endgame */
 #define EG_BISHOP_PAIR 50
 #define EG_ISOLATED_PAWN -20
 #define EG_DOUBLED_PAWN -20
 #define EG_PASSED_PAWN 20
+#define EG_ROOK_ON_7TH 35
+#define EG_ROOK_ON_7TH_TRAPPED_KING 15
 
 /* King Safety */
 #define MG_KING_ATTACK_PENALTY -5
