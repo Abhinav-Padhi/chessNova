@@ -615,11 +615,11 @@ int countIslands(U64 pawns)
    return count_bits(islandsEastfiles(pawns));
 }
 /**
- * @brief returns pawns with atleast one pawn in front on the same file
+ * @brief returns pawns with atleast one pawn behind on the same file
  */
 U64 wPawnsBehindOwn(U64 wpawns) {return wpawns & wRearspans(wpawns);}
 /**
- * @brief returns pawns with atleast one pawn behind on the same file.
+ * @brief returns pawns with atleast one pawn in front on the same file.
  */
 U64 wPawnsInfrontOwn (U64 wpawns) {return wpawns & wFrontspans(wpawns);}
 /**
@@ -627,6 +627,20 @@ U64 wPawnsInfrontOwn (U64 wpawns) {return wpawns & wFrontspans(wpawns);}
  */
 U64 wPawnsInfrontAndBehindOwn (U64 wpawns) {
    return wPawnsInfrontOwn(wpawns) &  wPawnsBehindOwn(wpawns);
+}
+
+U64 bPawnsBehindOwn (U64 bpawns)
+{
+   return bpawns & bRearspans(bpawns);
+}
+
+U64 bPawnsInfrontOwn (U64 bpawns)
+{
+   return bpawns & bFrontspans(bpawns);
+}
+
+U64 bPawnsInfrontAndBehindOwn (U64 bpawns) {
+   return bPawnsInfrontOwn(bpawns) &  bPawnsBehindOwn(bpawns);
 }
 
 U64 noNeighbourOnEastFile (U64 pawns)
@@ -659,4 +673,18 @@ U64 bOpenPawns(U64 bpawns, U64 wpawns) {
 U64 wHangingPawns(U64 wpawns, U64 bpawns)
 {
    return wOpenPawns(wpawns,bpawns) & halfIsolanis(wpawns) & duo(wpawns);
+}
+
+U64 wPassedPawns(U64 wpawns, U64 bpawns) {
+   U64 allFrontSpans = bFrontspans(bpawns);
+   allFrontSpans |= shiftEast(allFrontSpans);
+   allFrontSpans |= shiftWest(allFrontSpans);
+   return wpawns & ~allFrontSpans;
+}
+
+U64 bPassedPawns(U64 wpawns, U64 bpawns) {
+   U64 allFrontSpans = wFrontspans(wpawns);
+   allFrontSpans |= shiftEast(allFrontSpans);
+   allFrontSpans |= shiftWest(allFrontSpans);
+   return bpawns & ~allFrontSpans;
 }
