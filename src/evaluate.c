@@ -410,6 +410,36 @@ int evaluate(const Board *board) {
     // --- King Safety Calculation ---
     if (board->bitboards[wk] & ((1ULL<<g1) | (1ULL<<c1))) mg_score+=300;
     if (board->bitboards[bk] & ((1ULL<<g8) | (1ULL<<c8))) mg_score-=300;
+    if (board->bitboards[wk] & (1ULL<<g1))
+    {
+        if (!(board->bitboards[wp] & (1ULL<<g2 | (1ULL<<g3)))) mg_score-=300;   // If any of the shield pawns has moved more than one step, discourage castling
+        if (!(board->bitboards[wp] & (1ULL<<h2 | (1ULL<<h3)))) mg_score-=300;
+        if (!(board->bitboards[wp] & (1ULL<<f2 | (1ULL<<f3)))) mg_score-=300;
+        
+        if ((board->bitboards[wp] & (1ULL<<g3)) && (!(board->bitboards[wb] & (1ULL<<g2)))) mg_score-=300;   //If the pawn in front of king has moved one step and there is no bishop to take it's place, discourage castling      
+    }
+    if (board->bitboards[bk] & (1ULL<<g8))
+    {
+        if (!(board->bitboards[bp] & (1ULL<<g7 | (1ULL<<g6)))) mg_score+=300;   // Increase score if any shield pawns of black are missing
+        if (!(board->bitboards[bp] & (1ULL<<h7 | (1ULL<<h6)))) mg_score+=300;
+        if (!(board->bitboards[bp] & (1ULL<<f7 | (1ULL<<f6)))) mg_score+=300;
+        
+        if ((board->bitboards[bp] & (1ULL<<g6)) && (!(board->bitboards[bb] & (1ULL<<g7)))) mg_score+=300;
+    }
+
+    if (board->bitboards[wk] & (1ULL<<c1))
+    {
+        if (!(board->bitboards[wp] & (1ULL<<c2 | (1ULL<<c3)))) mg_score-=300;   // If any of the shield pawns has moved more than one step, discourage castling
+        if (!(board->bitboards[wp] & (1ULL<<b2 | (1ULL<<b3)))) mg_score-=300;
+        if (!(board->bitboards[wp] & (1ULL<<a2 | (1ULL<<a3)))) mg_score-=150;   // Since this is the outer pawn, we need not penalize it much
+        
+    }
+    if (board->bitboards[bk] & (1ULL<<c8))
+    {
+        if (!(board->bitboards[bp] & (1ULL<<c7 | (1ULL<<c6)))) mg_score+=300;   // Increase score if any shield pawns of black are missing
+        if (!(board->bitboards[bp] & (1ULL<<b7 | (1ULL<<b6)))) mg_score+=300;
+        if (!(board->bitboards[bp] & (1ULL<<a7 | (1ULL<<a6)))) mg_score+=150;   // Since this is the outer pawn, we need not penalize it much for black
+    }  
     // Penalize enemy pieces in the king zone
     U64 white_attackers = (board->bitboards[bn] | board->bitboards[bb] | board->bitboards[br] | board->bitboards[bq] | board->bitboards[bp]) & white_king_zone;
     U64 black_attackers = (board->bitboards[wn] | board->bitboards[wb] | board->bitboards[wr] | board->bitboards[wq] | board->bitboards[wp]) & black_king_zone;

@@ -76,12 +76,18 @@ file(GLOB TEST_FILES "tests/*.c")
 set(TEST_ENGINE_SRCS ${ENGINE_SRCS})
 list(REMOVE_ITEM TEST_ENGINE_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/main.c")
 
+# Define a custom target for only tests
+add_custom_target(tests)
+
 foreach(test_file ${TEST_FILES})
     # Extract filename without directory path and extension
     get_filename_component(test_name ${test_file} NAME_WE)
     
     # Define the test executable
     add_executable(${test_name} ${test_file} ${TEST_ENGINE_SRCS})
+
+    # Add dependency to ensure tests are built only when costum test target is built
+    add_dependencies(tests ${test_name})
     
     # Include directories (Must come AFTER add_executable)
     target_include_directories(${test_name} PRIVATE include)
