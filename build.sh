@@ -165,10 +165,10 @@ build() {
     if [ "$OS" = "macos" ] || [ "$OS" = "linux" ]; then
         JOBS=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
         print_info "Using $JOBS parallel jobs"
-        cmake --build . --parallel $JOBS
+        cmake --build . --target "$1" --parallel $JOBS
     else
         # Windows
-        cmake --build . --config Release --parallel
+        cmake --build . --config Release --target "$1" --parallel
     fi
 
     if [ $? -ne 0 ]; then
@@ -294,7 +294,7 @@ main() {
         build)
             check_requirements
             configure
-            build
+            build chess_engine
             print_success "Build finished! Executables are in build/bin/"
             ;;
         clean)
@@ -303,20 +303,21 @@ main() {
         test)
             check_requirements
             configure
-            build
+            build tests
             run_tests
             ;;
         run)
             check_requirements
             configure
-            build
+            build chess_engine
             run_engine
             ;;
         all)
             clean
             check_requirements
             configure
-            build
+            build chess_engine
+            build tests
             run_tests
             print_success "All tasks completed successfully!"
             ;;
