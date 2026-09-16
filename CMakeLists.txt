@@ -74,7 +74,7 @@ file(GLOB TEST_FILES "tests/*.c")
 
 # Test engine sources configuration (exclude main.c so we can link test mains)
 set(TEST_ENGINE_SRCS ${ENGINE_SRCS})
-list(REMOVE_ITEM TEST_ENGINE_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/main.c")
+list(REMOVE_ITEM TEST_ENGINE_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/main.c" "src/main.c")
 
 foreach(test_file ${TEST_FILES})
     # Extract filename without directory path and extension
