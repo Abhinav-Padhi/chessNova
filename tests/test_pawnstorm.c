@@ -3,11 +3,11 @@
  * @brief Test suite for pawn storm evaluation logic.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 #include "defs.h"
 #include "evaluate.h"
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int main() {
     init_magics();
@@ -15,7 +15,8 @@ int main() {
 
     // 1. Test Black pawn storm on White King (White King on g1 - middle file g)
     // Position A: White King on g1, no black pawn attacking front squares f2, g2, h2
-    // Position B: White King on g1, Black pawn on f3 attacking g2 & e2 (attaching 1 front square: g2)
+    // Position B: White King on g1, Black pawn on f3 attacking g2 & e2 (attaching 1 front square:
+    // g2)
     Board board_no_storm = {0}, board_storm = {0};
     parse_fen("7k/8/8/8/8/8/4P3/6K1 w - - 0 1", &board_no_storm);
     parse_fen("7k/8/8/8/8/5p2/4P3/6K1 w - - 0 1", &board_storm);

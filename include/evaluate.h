@@ -51,6 +51,6 @@ extern void init_evaluation_masks();
  * Returns a score for the current position from the perspective of the side to move.
  * Positive score is good for the side to move.
  */
-int evaluate(const Board *board);
+int evaluate(const Board* board);
 
 #endif
