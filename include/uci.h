@@ -1,6 +1,7 @@
 #ifndef UCI_H
 #define UCI_H
 
+#include "board.h"
 #include "types.h"
 
 void uci_loop();

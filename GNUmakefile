@@ -6,8 +6,9 @@
 #   make debug         -> build debug
 #   make release       -> build release
 #   make test          -> build + run ctest
-#   make clean         -> delete build dir
+#   make lint          -> run clang-tidy
 #   make format        -> run clang-format
+#   make clean         -> delete build dir
 #   make rebuild       -> clean + build
 #   make run           -> build + run chess_engine
 #
@@ -45,11 +46,12 @@ TEST_BUILD_DIR ?= build/$(PLATFORM)-$(CONFIG)-test
 NINJA := $(shell which ninja 2>/dev/null)
 NINJA_AVAILABLE := $(if $(NINJA),1,0)
 
+# --- Tooling detection ---
+CLANG_FORMAT := $(shell which clang-format 2>/dev/null)
+CLANG_TIDY   := $(shell which clang-tidy 2>/dev/null)
+
 # --- Convenience ---
 CMAKE := cmake
-
-# Detect clang-format
-CLANG_FORMAT := $(shell which clang-format 2>/dev/null)
 
 # ANSI colors
 GREEN := \033[32m
@@ -61,7 +63,9 @@ RESET := \033[0m
 #  Phony targets
 # ============================================================
 .PHONY: all help debug release ninja ninja-debug _build _build-ninja \
-        run run-debug test test-debug _test format clean distclean rebuild info
+        run run-debug test test-debug _test \
+        lint lint-fix format \
+        clean distclean rebuild info
 
 # --- Default target ---
 all: release                                 ## Build release (default, CMake generator)
@@ -177,6 +181,57 @@ _test: $(TEST_BUILD_DIR)-ninja/CMakeCache.txt
 	@printf "\n"
 
 # ============================================================
+#  Lint (clang-tidy)
+# ============================================================
+lint:                                        ## Run clang-tidy on sources
+ifeq ($(CLANG_TIDY),)
+	@printf "  $(RED)✗ clang-tidy not found$(RESET) — install it (apt install clang-tidy / brew install llvm)\n"
+	@exit 1
+else
+ifeq ($(NINJA_AVAILABLE),0)
+	@printf "  $(RED)✗ Ninja not found$(RESET) — clang-tidy needs compile_commands.json from a Ninja build\n"
+	@exit 1
+else
+	@$(MAKE) BUILD_TYPE=Release CONFIG=release _lint
+endif
+endif
+
+_lint: $(BUILD_DIR)-ninja/CMakeCache.txt
+	@echo "==> Ensuring compile_commands.json is up to date"
+	@$(CMAKE) -S . -B $(BUILD_DIR)-ninja -G Ninja \
+		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON > /dev/null
+	@echo "==> Running clang-tidy on src/, include/, tests/"
+	@find src include tests \( -name '*.c' -o -name '*.h' \) -print > /tmp/chess_lint_files.txt
+	@$(CLANG_TIDY) -p $(BUILD_DIR)-ninja --quiet $$(cat /tmp/chess_lint_files.txt)
+	@printf "\n"
+	@printf "  $(GREEN)✓ clang-tidy passed$(RESET)\n"
+	@printf "\n"
+
+lint-fix:                                    ## Run clang-tidy with --fix (auto-apply suggestions)
+ifeq ($(CLANG_TIDY),)
+	@printf "  $(RED)✗ clang-tidy not found$(RESET) — install it to use 'make lint-fix'\n"
+	@exit 1
+else
+ifeq ($(NINJA_AVAILABLE),0)
+	@printf "  $(RED)✗ Ninja not found$(RESET) — clang-tidy needs compile_commands.json\n"
+	@exit 1
+else
+	@echo "==> Ensuring compile_commands.json is up to date"
+	@$(CMAKE) -S . -B $(BUILD_DIR)-ninja -G Ninja \
+		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON > /dev/null
+	@echo "==> Running clang-tidy --fix"
+	@find src include tests \( -name '*.c' -o -name '*.h' \) -print > /tmp/chess_lint_files.txt
+	@$(CLANG_TIDY) -p $(BUILD_DIR)-ninja --fix --quiet $$(cat /tmp/chess_lint_files.txt)
+	@printf "\n"
+	@printf "  $(GREEN)✓ clang-tidy --fix done$(RESET)\n"
+	@printf "  Review changes with: git diff\n"
+	@printf "\n"
+endif
+endif
+
+# ============================================================
 #  Run
 # ============================================================
 run:                                         ## Build + run chess_engine
@@ -194,10 +249,14 @@ run-debug:                                   ## Build + run in debug mode
 # ============================================================
 format:                                      ## Run clang-format on sources
 ifeq ($(CLANG_FORMAT),)
-	@echo "==> clang-format not found — install it to use 'make format'"
+	@printf "  $(RED)✗ clang-format not found$(RESET) — install it to use 'make format'\n"
+	@exit 1
 else
 	@echo "==> Formatting C sources"
-	@find src include tests -name '*.c' -o -name '*.h' | xargs $(CLANG_FORMAT) -i
+	@find src include tests \( -name '*.c' -o -name '*.h' \) -print | xargs $(CLANG_FORMAT) -i
+	@printf "\n"
+	@printf "  $(GREEN)✓ Formatted$(RESET)\n"
+	@printf "\n"
 endif
 
 # ============================================================
@@ -227,4 +286,5 @@ info:                                        ## Print current build configuratio
 	@printf "Jobs            : $(JOBS)\n"
 	@printf "Ninja           : $(if $(filter 1,$(NINJA_AVAILABLE)),$(NINJA),<not found>)\n"
 	@printf "clang-format    : $(if $(CLANG_FORMAT),$(CLANG_FORMAT),<not found>)\n"
+	@printf "clang-tidy      : $(if $(CLANG_TIDY),$(CLANG_TIDY),<not found>)\n"
 	@printf "\n"
