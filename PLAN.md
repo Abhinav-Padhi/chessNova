@@ -136,8 +136,7 @@ Pawn structure evaluation is permanent (pawns don't move backward) and benefits 
 - [ ] **Rook on open file**: bonus; **rook on semi-open file**: smaller bonus
 - [x] **Rook on 7th rank**: large bonus when opponent king is on 8th rank
 - [ ] **Connected rooks**: bonus for rooks on the same rank/file with no pieces between
-- [ ] **Knight outpost**: bonus for knights on central squares protected by a pawn with no
-  opponent pawn that can challenge them
+- [ ] **Knight outpost**: bonus for knights on central squares protected by a pawn with no opponent pawn that can challenge them
 - [ ] **Bad bishop**: penalty for bishop blocked by its own pawns of the same color
 - [ ] **Bishop pair**: bonus (~50cp) for having both bishops when opponent does not
 
@@ -229,13 +228,13 @@ for all positions with up to 7 pieces.
 
 ## 7. UCI Protocol Completeness
 
-- [ ] `uci` → respond with `id name`, `id author`, all `option` declarations, `uciok`
-- [ ] `isready` → respond `readyok` (ensure TT is allocated, book is loaded first)
-- [ ] `setoption name <x> value <y>` → handle: `Hash`, `SyzygyPath`, `OwnBook`, `MoveOverhead`
+- [x] `uci` → respond with `id name`, `id author`, all `option` declarations, `uciok`
+- [x] `isready` → respond `readyok` (ensure TT is allocated, book is loaded first)
+- [x] `setoption name <x> value <y>` → handle: `Hash`, `SyzygyPath`, `OwnBook`, `MoveOverhead`
 - [ ] `position startpos moves ...` and `position fen ... moves ...`
-- [ ] `go` with all time control parameters
+- [x] `go` with all time control parameters
 - [ ] `stop` → stop searching immediately, output best move found so far
-- [ ] `quit` → clean up and exit
+- [x] `quit` → clean up and exit
 - [ ] `ponderhit` → if implementing pondering later
 - [ ] Output `info depth score nodes nps hashfull pv` lines during search
 
@@ -262,12 +261,12 @@ for all positions with up to 7 pieces.
 
 ## 9. Code Quality & Maintenance
 
-- [ ] Add `README.md` sections: build instructions, UCI options, feature list, benchmark results
+- [x] Add `README.md` sections: build instructions, UCI options, feature list, benchmark results
 - [ ] Add `ARCHITECTURE.md` describing board representation, search, eval structure
 - [ ] Keep `EVALUATION.md` up to date as tuning weights change
-- [ ] Use `clang-format` with a project `.clang-format` file for consistent style
-- [ ] Enable `-Wall -Wextra -Wshadow -fsanitize=address,undefined` in debug builds
-- [ ] Set up a `Makefile` with targets: `release`, `debug`, `profile`, `bench`
+- [x] Use `clang-format` with a project `.clang-format` file for consistent style
+- [x] Enable `-Wall -Wextra -Wshadow -fsanitize=address,undefined` in debug builds
+- [x] Set up a `Makefile` with targets: `release`, `debug`, `profile`, `bench`
 
 ---
 
