@@ -1,6 +1,7 @@
 #include "defs.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <zobrist.h>
 
 /** @brief Character representation of each piece type. */
 char piece_char[] = "PNBRQKpnbrqk";
@@ -207,6 +208,24 @@ void parse_fen(const char* fen, Board* board) {
         fen += 2;
     } else {
         board->enpassant = NO_SQ;
+        fen++;
+    }
+
+    // Halfmove clock (fifty-move rule)
+    while (*fen == ' ')
+        fen++;
+    if (*fen != '\0') {
+        board->fiftyMove = atoi(fen);
+        while (*fen != ' ' && *fen != '\0')
+            fen++;
+    }
+
+    // Fullmove number
+    while (*fen == ' ')
+        fen++;
+    if (*fen != '\0') {
+        int fullmove = atoi(fen);
+        board->ply = (fullmove - 1) * 2 + ((board->side == black) ? 1 : 0);
     }
 
     // Update occupancies
@@ -246,6 +265,9 @@ static void move_piece(Board* board, int from, int to, int piece) {
     set_bit(&board->occupancies[both], to);
     board->pieces[from] = EMPTY;
     board->pieces[to] = piece;
+
+    board->posKey ^= PieceKeys[piece][from];
+    board->posKey ^= PieceKeys[piece][to];
 }
 
 /**
@@ -260,6 +282,8 @@ static void remove_piece(Board* board, int sq, int piece) {
     clear_bit(&board->occupancies[side], sq);
     clear_bit(&board->occupancies[both], sq);
     board->pieces[sq] = EMPTY;
+
+    board->posKey ^= PieceKeys[piece][sq];
 }
 
 /**
@@ -274,6 +298,8 @@ static void add_piece(Board* board, int sq, int piece) {
     set_bit(&board->occupancies[side], sq);
     set_bit(&board->occupancies[both], sq);
     board->pieces[sq] = piece;
+
+    board->posKey ^= PieceKeys[piece][sq];
 }
 
 /**
@@ -295,11 +321,20 @@ bool make_move(Board* board, uint32_t move) {
     board->history[board->hisply].fiftyMove = board->fiftyMove;
     board->history[board->hisply].posKey = board->posKey;
 
+    if (board->enpassant != NO_SQ) {
+        board->posKey ^= EnPassantKeys[board->enpassant % 8];
+    }
+
+    board->posKey ^= CastleKeys[board->castle & 0xF];
+
+    // Handle captures
     if (move & MFLAG_CAP) {
         if (move & MFLAG_EP) {
+            // En passant capture
             int ep_sq = (side == white) ? to - 8 : to + 8;
             remove_piece(board, ep_sq, (side == white) ? bp : wp);
         } else if (captured != EMPTY) {
+            // Standard capture
             remove_piece(board, to, captured);
         }
         board->fiftyMove = 0;
@@ -307,11 +342,13 @@ bool make_move(Board* board, uint32_t move) {
         board->fiftyMove++;
     }
 
+    // Reset fifty-move clock for pawn moves
     if (piece == wp || piece == bp)
         board->fiftyMove = 0;
 
     board->enpassant = NO_SQ;
 
+    // Handle castling - move the rook
     if (move & MFLAG_CA) {
         switch (to) {
         case g1:
@@ -329,22 +366,32 @@ bool make_move(Board* board, uint32_t move) {
         }
     }
 
+    // Move the main piece
     move_piece(board, from, to, piece);
 
+    // Handle pawn promotion
     if (GET_PROMOTED(move) != EMPTY) {
         remove_piece(board, to, piece);
         add_piece(board, to, GET_PROMOTED(move));
     }
 
+    // Handle pawn double push (en passant setup)
     if (move & MFLAG_PS) {
         board->enpassant = (side == white) ? from + 8 : from - 8;
+        board->posKey ^= EnPassantKeys[board->enpassant % 8];
+    } else {
+        board->enpassant = NO_SQ;
     }
+
+    // Update castling rights based on piece move
+    board->posKey ^= CastleKeys[board->castle & 0xF];
 
     if (piece == wk)
         board->castle &= ~(WKCA | WQCA);
     else if (piece == bk)
         board->castle &= ~(BKCA | BQCA);
 
+    // Update castling rights based on rook moves
     if (from == a1 || to == a1)
         board->castle &= ~WQCA;
     if (from == h1 || to == h1)
@@ -354,10 +401,14 @@ bool make_move(Board* board, uint32_t move) {
     if (from == h8 || to == h8)
         board->castle &= ~BKCA;
 
+    board->posKey ^= CastleKeys[board->castle & 0xF];
+
     board->side ^= 1;
+    board->posKey ^= SideKey;
     board->ply++;
     board->hisply++;
 
+    // Check if own king is in check - illegal move
     int king_sq = get_lsb(board->bitboards[(side == white) ? wk : bk]);
     if (is_square_attacked(board, king_sq, board->side)) {
         unmake_move(board);
@@ -373,11 +424,13 @@ bool make_move(Board* board, uint32_t move) {
 void unmake_move(Board* board) {
     board->hisply--;
     board->ply--;
+
     uint32_t move = board->history[board->hisply].move;
     int from = GET_FROM(move);
     int to = GET_TO(move);
     int side = board->side ^ 1;
 
+    // Restore state from history
     board->castle = board->history[board->hisply].castle;
     board->enpassant = board->history[board->hisply].enpassant;
     board->fiftyMove = board->history[board->hisply].fiftyMove;
@@ -386,24 +439,30 @@ void unmake_move(Board* board) {
 
     int piece = get_piece_at(board, to);
 
+    // Handle pawn promotion - convert promoted piece back to pawn
     if (GET_PROMOTED(move) != EMPTY) {
         remove_piece(board, to, piece);
         piece = (side == white) ? wp : bp;
         add_piece(board, to, piece);
     }
 
+    // Move piece back to source square
     move_piece(board, to, from, piece);
 
+    // Handle captures - restore captured piece
     if (move & MFLAG_CAP) {
         int captured = GET_CAPTURED(move);
         if (move & MFLAG_EP) {
+            // En passant - restore pawn on en passant square
             int ep_sq = (side == white) ? to - 8 : to + 8;
             add_piece(board, ep_sq, (side == white) ? bp : wp);
         } else {
+            // Standard capture - restore captured piece
             add_piece(board, to, captured);
         }
     }
 
+    // Handle castling - move rook back
     if (move & MFLAG_CA) {
         switch (to) {
         case g1:
@@ -433,8 +492,14 @@ void make_null_move(Board* board) {
     board->history[board->hisply].fiftyMove = board->fiftyMove;
     board->history[board->hisply].posKey = board->posKey;
 
-    board->enpassant = NO_SQ;
+    if (board->enpassant != NO_SQ) {
+        board->posKey ^= EnPassantKeys[board->enpassant % 8];
+        board->enpassant = NO_SQ;
+    }
+
     board->side ^= 1;
+    board->posKey ^= SideKey;
+
     board->hisply++;
     board->ply++;
 }
