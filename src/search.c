@@ -1,6 +1,7 @@
 #include "search.h"
 #include <stdio.h>
 #include <string.h>
+#include "tt.h"
 
 /**
  * Checks if the search should be stopped due to time or other conditions.
@@ -27,15 +28,16 @@ static int has_non_pawn_material(const Board* board) {
 /**
  * Scores moves in the move list based on MVV-LVA and other heuristics.
  */
-static void score_moves(SearchInfo* info, MoveList* list, Board* board) {
+static void score_moves(SearchInfo* info, MoveList* list, Board* board, uint32_t tt_move) {
     for (int i = 0; i < list->count; i++) {
         uint32_t move = list->moves[i].move;
         int piece = board->pieces[GET_FROM(move)];
         int to = GET_TO(move);
 
-        if (move & MFLAG_CAP) {
+        if (move == tt_move) {
+            list->moves[i].score = 2000000; // TT best move gets absolute top priority
+        } else if (move & MFLAG_CAP) {
             int captured = GET_CAPTURED(move);
-            // piece % 6 gives type: 0=P, 1=N, 2=B, 3=R, 4=Q, 5=K
             int victim_type = (captured == EMPTY) ? 0 : (captured % 6);
             int attacker_type = piece % 6;
             list->moves[i].score = 1000000 + (victim_type * 10) + (6 - attacker_type);
@@ -87,7 +89,7 @@ static int quiescence(Board* board, SearchInfo* info, int alpha, int beta) {
 
     MoveList list;
     generate_all_moves(board, &list);
-    score_moves(info, &list, board);
+    score_moves(info, &list, board, 0);
 
     for (int i = 0; i < list.count; i++) {
         pick_next_move(i, &list);
@@ -115,7 +117,11 @@ static int quiescence(Board* board, SearchInfo* info, int alpha, int beta) {
  * Alpha-Beta pruning search with NMP and LMR.
  */
 static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int beta) {
-    if (depth == 0)
+    if (board->ply >= 64 - 1) { // Guard against ply overflow
+        return evaluate(board);
+    }
+
+    if (depth <= 0)
         return quiescence(board, info, alpha, beta);
 
     if ((info->nodes & 2047) == 0) {
@@ -123,13 +129,23 @@ static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int 
     }
     info->nodes++;
 
+    // TT Probe
+    int tt_score = 0;
+    uint32_t tt_move = 0;
+    if (probe_tt(board->posKey, depth, alpha, beta, board->ply, &tt_score, &tt_move)) {
+        return tt_score;
+    }
+
     U64 king_bb = board->bitboards[(board->side == white) ? wk : bk];
     if (king_bb == 0)
         return -MATE_SCORE + board->ply;
     int king_sq = get_lsb(king_bb);
     bool in_check = is_square_attacked(board, king_sq, board->side ^ 1);
 
-    // --- Null Move Pruning ---
+    int old_alpha = alpha;
+    uint32_t best_move = 0;
+
+    // Null Move Pruning
     if (depth >= 3 && !in_check && has_non_pawn_material(board)) {
         make_null_move(board);
         int score = -alpha_beta(board, info, depth - 1 - 2, -beta, -beta + 1);
@@ -142,7 +158,7 @@ static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int 
 
     MoveList list;
     generate_all_moves(board, &list);
-    score_moves(info, &list, board);
+    score_moves(info, &list, board, tt_move);
 
     int legal_moves = 0;
 
@@ -155,11 +171,9 @@ static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int 
         legal_moves++;
 
         int score;
-        // --- Late Move Reductions ---
         if (legal_moves > 4 && depth >= 3 && !in_check && !(move & MFLAG_CAP) &&
             GET_PROMOTED(move) == EMPTY) {
 
-            // Check if the move gives check
             U64 enemy_king_bb = board->bitboards[(board->side == white) ? wk : bk];
             if (enemy_king_bb) {
                 int enemy_king_sq = get_lsb(enemy_king_bb);
@@ -167,10 +181,10 @@ static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int 
                 if (!gives_check) {
                     score = -alpha_beta(board, info, depth - 2, -alpha - 1, -alpha);
                 } else {
-                    score = alpha + 1; // Force re-search
+                    score = alpha + 1;
                 }
             } else {
-                score = alpha + 1; // Force re-search
+                score = alpha + 1;
             }
 
             if (score > alpha) {
@@ -194,10 +208,13 @@ static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int 
                 int to = GET_TO(move);
                 info->history_moves[piece][to] += depth * depth;
             }
+
+            store_tt(board->posKey, move, beta, depth, TT_BETA, board->ply);
             return beta;
         }
         if (score > alpha) {
             alpha = score;
+            best_move = move;
         }
     }
 
@@ -205,8 +222,11 @@ static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int 
         if (in_check) {
             return -MATE_SCORE + board->ply;
         }
-        return 0; // Stalemate
+        return 0;
     }
+
+    uint8_t flag = (alpha > old_alpha) ? TT_EXACT : TT_ALPHA;
+    store_tt(board->posKey, best_move, alpha, depth, flag, board->ply);
 
     return alpha;
 }
@@ -216,15 +236,23 @@ uint32_t search_best_move(Board* board, SearchInfo* info) {
     int best_score = -INFINITY;
     int current_depth = 1;
 
+    board->ply = 0; // Explicitly reset search ply to 0 at root
+
     memset(info->killer_moves, 0, sizeof(info->killer_moves));
     memset(info->history_moves, 0, sizeof(info->history_moves));
     info->stopped = 0;
     info->nodes = 0;
 
+    increment_tt_age();
+
     for (current_depth = 1; current_depth <= info->depth; current_depth++) {
+        uint32_t root_tt_move = 0;
+        int dummy_score = 0;
+        probe_tt(board->posKey, current_depth, -INFINITY, INFINITY, board->ply, &dummy_score, &root_tt_move);
+
         MoveList list;
         generate_all_moves(board, &list);
-        score_moves(info, &list, board);
+        score_moves(info, &list, board, root_tt_move);
 
         uint32_t depth_best_move = 0;
         int depth_best_score = -INFINITY;
@@ -235,6 +263,7 @@ uint32_t search_best_move(Board* board, SearchInfo* info) {
 
             if (!make_move(board, move))
                 continue;
+
             int score = -alpha_beta(board, info, current_depth - 1, -INFINITY, INFINITY);
             unmake_move(board);
 
@@ -253,11 +282,15 @@ uint32_t search_best_move(Board* board, SearchInfo* info) {
         best_move = depth_best_move;
         best_score = depth_best_score;
 
+        if (best_move != 0) {
+            store_tt(board->posKey, best_move, best_score, current_depth, TT_EXACT, 0);
+        }
+
         printf("info score cp %d depth %d nodes %llu time %llu\n", best_score, current_depth,
                (unsigned long long)info->nodes,
                (unsigned long long)get_time_ms() - (unsigned long long)info->starttime);
 
-        if (best_score > MATE_SCORE - 100 || best_score < -MATE_SCORE + 100)
+        if (best_score > MATE_SCORE - 1000 || best_score < -MATE_SCORE + 1000)
             break;
     }
 

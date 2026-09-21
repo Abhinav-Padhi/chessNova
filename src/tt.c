@@ -64,7 +64,7 @@ void increment_tt_age(void) {
 }
 
 bool probe_tt(U64 key, int depth, int alpha, int beta, int ply, int* score, uint32_t* move) {
-    if (!TT.pTable || TT.numEntries == 0) return false;
+    if (!TT.pTable || TT.numEntries == 0 || key == 0) return false;
 
     uint32_t index = (uint32_t)(key & (TT.numEntries - 1));
     TTEntry* entry = &TT.pTable[index];
@@ -72,7 +72,6 @@ bool probe_tt(U64 key, int depth, int alpha, int beta, int ply, int* score, uint
     if (entry->key == key) {
         if (move) *move = entry->move;
 
-        // Cutoff can only occur if stored depth is greater than or equal to requested search depth
         if (entry->depth >= depth) {
             int tt_score = score_from_tt(entry->score, ply);
 
@@ -81,32 +80,27 @@ bool probe_tt(U64 key, int depth, int alpha, int beta, int ply, int* score, uint
                 return true;
             }
             if (entry->flag == TT_ALPHA && tt_score <= alpha) {
-                *score = alpha; // or tt_score
+                *score = alpha;
                 return true;
             }
             if (entry->flag == TT_BETA && tt_score >= beta) {
-                *score = beta; // or tt_score
+                *score = beta;
                 return true;
             }
         }
     } else {
-        if (move) *move = 0;
+        if (move && *move == 0) *move = 0;
     }
 
     return false;
 }
 
 void store_tt(U64 key, uint32_t move, int score, int depth, uint8_t flag, int ply) {
-    if (!TT.pTable || TT.numEntries == 0) return;
+    if (!TT.pTable || TT.numEntries == 0 || key == 0) return;
 
     uint32_t index = (uint32_t)(key & (TT.numEntries - 1));
     TTEntry* entry = &TT.pTable[index];
 
-    // Replacement Policy: Always replace if:
-    // 1. Entry is empty (key == 0)
-    // 2. Same key (updating position with better/newer depth)
-    // 3. Entry is from an older search iteration (age != currentAge)
-    // 4. New depth is greater than or equal to existing depth
     bool replace = false;
 
     if (entry->key == 0 || entry->key == key) {
@@ -118,7 +112,6 @@ void store_tt(U64 key, uint32_t move, int score, int depth, uint8_t flag, int pl
     }
 
     if (replace) {
-        // If updating existing key and move is 0, preserve best move from previous record
         if (entry->key == key && move == 0) {
             move = entry->move;
         }
