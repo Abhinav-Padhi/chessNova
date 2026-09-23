@@ -11,10 +11,10 @@
 #endif
 
 // Move ordering base scores
-#define TT_MOVE_SCORE      2000000
+#define TT_MOVE_SCORE 2000000
 #define CAPTURE_SCORE_BASE 1000000
-#define KILLER_1_SCORE     900000
-#define KILLER_2_SCORE     800000
+#define KILLER_1_SCORE 900000
+#define KILLER_2_SCORE 800000
 
 typedef struct {
     U64 starttime;

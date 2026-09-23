@@ -9,12 +9,12 @@
  * Higher scores prioritize capturing high-value pieces with low-value attackers.
  */
 static const int MVV_LVA[6][6] = {
-    { 105, 104, 103, 102, 101, 100 }, // Victim: Pawn
-    { 205, 204, 203, 202, 201, 200 }, // Victim: Knight
-    { 305, 304, 303, 302, 301, 300 }, // Victim: Bishop
-    { 405, 404, 403, 402, 401, 400 }, // Victim: Rook
-    { 505, 504, 503, 502, 501, 500 }, // Victim: Queen
-    { 605, 604, 603, 602, 601, 600 }  // Victim: King
+    {105, 104, 103, 102, 101, 100}, // Victim: Pawn
+    {205, 204, 203, 202, 201, 200}, // Victim: Knight
+    {305, 304, 303, 302, 301, 300}, // Victim: Bishop
+    {405, 404, 403, 402, 401, 400}, // Victim: Rook
+    {505, 504, 503, 502, 501, 500}, // Victim: Queen
+    {605, 604, 603, 602, 601, 600}  // Victim: King
 };
 
 /**
@@ -40,7 +40,8 @@ static int has_non_pawn_material(const Board* board) {
 }
 
 /**
- * Scores moves in the move list based on TT best move, MVV-LVA, Killer Moves, and History Heuristic.
+ * Scores moves in the move list based on TT best move, MVV-LVA, Killer Moves, and History
+ * Heuristic.
  */
 static void score_moves(SearchInfo* info, MoveList* list, Board* board, uint32_t tt_move) {
     for (int i = 0; i < list->count; i++) {
@@ -51,15 +52,15 @@ static void score_moves(SearchInfo* info, MoveList* list, Board* board, uint32_t
         // 1. Hash/TT Move (Top Priority)
         if (tt_move != 0 && move == tt_move) {
             list->moves[i].score = TT_MOVE_SCORE;
-        } 
+        }
         // 2. MVV-LVA Captures
         else if (move & MFLAG_CAP) {
             int captured = GET_CAPTURED(move);
             int victim_type = (captured == EMPTY) ? 0 : (captured % 6);
             int attacker_type = (piece == EMPTY) ? 0 : (piece % 6);
-            
+
             list->moves[i].score = CAPTURE_SCORE_BASE + MVV_LVA[victim_type][attacker_type];
-        } 
+        }
         // 3. Killer Moves & Scaled History Heuristic (Quiet Moves)
         else {
             if (board->ply < MAX_PLY && info->killer_moves[0][board->ply] == move) {
@@ -119,7 +120,7 @@ static int quiescence(Board* board, SearchInfo* info, int alpha, int beta) {
 
         if (!make_move(board, move))
             continue;
-            
+
         int score = -quiescence(board, info, -beta, -alpha);
         unmake_move(board);
 
@@ -201,7 +202,7 @@ static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int 
             // Late Move Reduction (LMR) check
             if (legal_moves > 4 && depth >= 3 && !in_check && !(move & MFLAG_CAP) &&
                 GET_PROMOTED(move) == EMPTY) {
-                
+
                 U64 enemy_king_bb = board->bitboards[(board->side == white) ? wk : bk];
                 if (enemy_king_bb) {
                     int enemy_king_sq = get_lsb(enemy_king_bb);
@@ -250,7 +251,7 @@ static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int 
             store_tt(board->posKey, move, beta, depth, TT_BETA, board->ply);
             return beta;
         }
-        
+
         if (score > alpha) {
             alpha = score;
             best_move = move;
@@ -287,9 +288,10 @@ uint32_t search_best_move(Board* board, SearchInfo* info) {
     for (current_depth = 1; current_depth <= info->depth; current_depth++) {
         uint32_t root_tt_move = 0;
         int dummy_score = 0;
-        
+
         // Probe TT for root move found in shallower iterations
-        probe_tt(board->posKey, current_depth, -INFINITY, INFINITY, board->ply, &dummy_score, &root_tt_move);
+        probe_tt(board->posKey, current_depth, -INFINITY, INFINITY, board->ply, &dummy_score,
+                 &root_tt_move);
         if (root_tt_move == 0) {
             root_tt_move = best_move;
         }
@@ -314,7 +316,8 @@ uint32_t search_best_move(Board* board, SearchInfo* info) {
             legal_moves++;
             int score;
 
-            // Root PVS window: search first move with full window, subsequent moves with null-window
+            // Root PVS window: search first move with full window, subsequent moves with
+            // null-window
             if (legal_moves == 1) {
                 score = -alpha_beta(board, info, current_depth - 1, -beta, -alpha);
             } else {
