@@ -6,6 +6,16 @@
 #define INFINITY 30000
 #define MATE_SCORE 29000
 
+#ifndef MAX_PLY
+#define MAX_PLY 64
+#endif
+
+// Move ordering base scores
+#define TT_MOVE_SCORE 2000000
+#define CAPTURE_SCORE_BASE 1000000
+#define KILLER_1_SCORE 900000
+#define KILLER_2_SCORE 800000
+
 typedef struct {
     U64 starttime;
     U64 stoptime;
@@ -32,4 +42,4 @@ typedef struct {
  */
 extern uint32_t search_best_move(Board* board, SearchInfo* info);
 
-#endif
+#endif // SEARCH_H

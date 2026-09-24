@@ -5,18 +5,18 @@
 #include <stdbool.h>
 
 // Bound flags matching standard alpha-beta semantics
-#define TT_NONE  0
+#define TT_NONE 0
 #define TT_EXACT 1
 #define TT_ALPHA 2 // UPPER_BOUND (score <= alpha)
-#define TT_BETA  3 // LOWER_BOUND (score >= beta)
+#define TT_BETA 3  // LOWER_BOUND (score >= beta)
 
 typedef struct {
-    U64 key;          // Full 64-bit Zobrist key for collision verification
-    uint32_t move;    // Best/refutation move packed as 32-bit uint32_t
-    int16_t score;    // Search evaluation / score
-    int16_t depth;    // Search depth remaining
-    uint8_t flag;     // TT_EXACT, TT_ALPHA, or TT_BETA
-    uint8_t age;      // Search age/generation for replacement policy
+    U64 key;       // Full 64-bit Zobrist key for collision verification
+    uint32_t move; // Best/refutation move packed as 32-bit uint32_t
+    int16_t score; // Search evaluation / score
+    int16_t depth; // Search depth remaining
+    uint8_t flag;  // TT_EXACT, TT_ALPHA, or TT_BETA
+    uint8_t age;   // Search age/generation for replacement policy
 } TTEntry;
 
 typedef struct {

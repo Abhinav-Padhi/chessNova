@@ -3,8 +3,8 @@
  * @brief Regression and benchmarking tests for TT Search Integration.
  */
 
-#include "defs.h"
 #include "board.h"
+#include "defs.h"
 #include "search.h"
 #include "tt.h"
 #include <assert.h>
@@ -18,10 +18,10 @@ typedef struct {
 
 static const TestPosition TEST_POSITIONS[] = {
     {"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "Starting Position", 6},
-    {"r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", "Kiwipete Position", 5},
+    {"r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", "Kiwipete Position",
+     5},
     {"8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", "Endgame Position", 7},
-    {"r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", "Pos 4 (Tactical)", 5}
-};
+    {"r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", "Pos 4 (Tactical)", 5}};
 
 static void print_uci_move(uint32_t move) {
     if (move == 0) {
@@ -35,21 +35,21 @@ static void print_uci_move(uint32_t move) {
     char promo_char = '\0';
     if (promoted != EMPTY) {
         int type = promoted % 6;
-        if (type == 1) promo_char = 'n';
-        else if (type == 2) promo_char = 'b';
-        else if (type == 3) promo_char = 'r';
-        else if (type == 4) promo_char = 'q';
+        if (type == 1)
+            promo_char = 'n';
+        else if (type == 2)
+            promo_char = 'b';
+        else if (type == 3)
+            promo_char = 'r';
+        else if (type == 4)
+            promo_char = 'q';
     }
 
     if (promo_char) {
-        printf("%c%c%c%c%c",
-               'a' + (from % 8), '1' + (from / 8),
-               'a' + (to % 8),   '1' + (to / 8),
+        printf("%c%c%c%c%c", 'a' + (from % 8), '1' + (from / 8), 'a' + (to % 8), '1' + (to / 8),
                promo_char);
     } else {
-        printf("%c%c%c%c",
-               'a' + (from % 8), '1' + (from / 8),
-               'a' + (to % 8),   '1' + (to / 8));
+        printf("%c%c%c%c", 'a' + (from % 8), '1' + (from / 8), 'a' + (to % 8), '1' + (to / 8));
     }
 }
 
