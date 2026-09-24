@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-TranspositionTable TT = { NULL, 0, 0 };
+TranspositionTable TT = {NULL, 0, 0};
 
 int16_t score_to_tt(int score, int ply) {
     if (score > MATE_SCORE - 1000) {
@@ -28,7 +28,8 @@ int score_from_tt(int16_t score, int ply) {
 void init_tt(int size_mb) {
     free_tt();
 
-    if (size_mb <= 0) size_mb = 16; // Default fallback to 16MB
+    if (size_mb <= 0)
+        size_mb = 16; // Default fallback to 16MB
 
     size_t bytes = (size_t)size_mb * 1024 * 1024;
     uint32_t entries = (uint32_t)(bytes / sizeof(TTEntry));
@@ -64,13 +65,15 @@ void increment_tt_age(void) {
 }
 
 bool probe_tt(U64 key, int depth, int alpha, int beta, int ply, int* score, uint32_t* move) {
-    if (!TT.pTable || TT.numEntries == 0 || key == 0) return false;
+    if (!TT.pTable || TT.numEntries == 0 || key == 0)
+        return false;
 
     uint32_t index = (uint32_t)(key & (TT.numEntries - 1));
     TTEntry* entry = &TT.pTable[index];
 
     if (entry->key == key) {
-        if (move) *move = entry->move;
+        if (move)
+            *move = entry->move;
 
         if (entry->depth >= depth) {
             int tt_score = score_from_tt(entry->score, ply);
@@ -89,14 +92,16 @@ bool probe_tt(U64 key, int depth, int alpha, int beta, int ply, int* score, uint
             }
         }
     } else {
-        if (move && *move == 0) *move = 0;
+        if (move && *move == 0)
+            *move = 0;
     }
 
     return false;
 }
 
 void store_tt(U64 key, uint32_t move, int score, int depth, uint8_t flag, int ply) {
-    if (!TT.pTable || TT.numEntries == 0 || key == 0) return;
+    if (!TT.pTable || TT.numEntries == 0 || key == 0)
+        return;
 
     uint32_t index = (uint32_t)(key & (TT.numEntries - 1));
     TTEntry* entry = &TT.pTable[index];

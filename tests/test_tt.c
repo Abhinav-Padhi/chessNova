@@ -48,7 +48,7 @@ static void test_mate_score_conversion(void) {
     // Winning Mate-in-3 found at ply 5
     int mate_in_3 = MATE_SCORE - 3; // +29997
     int16_t stored_mate = score_to_tt(mate_in_3, ply);
-    
+
     // Key check: Stored score MUST be stored relative to root (MATE_SCORE - 3 + 5 = MATE_SCORE + 2)
     assert(stored_mate == MATE_SCORE + 2);
 
@@ -56,7 +56,8 @@ static void test_mate_score_conversion(void) {
     int probed_mate_same_ply = score_from_tt(stored_mate, ply);
     assert(probed_mate_same_ply == mate_in_3);
 
-    // When probed higher up the tree (e.g. ply 1), it adjusts correctly to mate-in-1 relative to ply 1
+    // When probed higher up the tree (e.g. ply 1), it adjusts correctly to mate-in-1 relative to
+    // ply 1
     int probed_mate_diff_ply = score_from_tt(stored_mate, 1);
     assert(probed_mate_diff_ply == MATE_SCORE - 1);
 

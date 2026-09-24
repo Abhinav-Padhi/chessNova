@@ -1,6 +1,7 @@
 /**
  * @file test_tt_management.c
- * @brief Unit tests for Transposition Table allocation, index masking, probing, and replacement policy.
+ * @brief Unit tests for Transposition Table allocation, index masking, probing, and replacement
+ * policy.
  */
 
 #include "defs.h"
@@ -50,7 +51,8 @@ static void test_tt_probing_and_replacement(void) {
     assert(!hit);
     assert(best_move == 0);
 
-    // 2. Store depth 4 entry and probe with depth 5 (should match move, but no cutoff because depth 4 < 5)
+    // 2. Store depth 4 entry and probe with depth 5 (should match move, but no cutoff because depth
+    // 4 < 5)
     store_tt(key1, move1, 200, 4, TT_EXACT, 0);
     hit = probe_tt(key1, 5, -100, 100, 0, &score, &best_move);
     assert(!hit);               // Depth insufficient for cutoff
@@ -62,8 +64,8 @@ static void test_tt_probing_and_replacement(void) {
     assert(score == 200);
     assert(best_move == move1);
 
-    // 4. Replacement Test: Shallow entry (depth 2) should NOT replace deeper entry (depth 4) of same age
-    // We construct a key2 that collides with key1's slot index
+    // 4. Replacement Test: Shallow entry (depth 2) should NOT replace deeper entry (depth 4) of
+    // same age We construct a key2 that collides with key1's slot index
     U64 mask = TT.numEntries - 1;
     key2 = (key1 & mask) | 0x8888888800000000ULL; // Same slot index, different key
 
@@ -74,7 +76,8 @@ static void test_tt_probing_and_replacement(void) {
     assert(hit);
     assert(score == 200);
 
-    // 5. Age Replacement Test: Advance generation age, now shallower entry (depth 2) WILL overwrite old key1
+    // 5. Age Replacement Test: Advance generation age, now shallower entry (depth 2) WILL overwrite
+    // old key1
     increment_tt_age();
     store_tt(key2, move2, 50, 2, TT_EXACT, 0);
 

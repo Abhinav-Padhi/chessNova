@@ -18,10 +18,10 @@ A transposition table is a hash map keyed on Zobrist hashes of positions. It all
 to avoid re-searching positions it has already evaluated, dramatically increasing effective search depth.
 
 ### 1.1 Zobrist Hashing
-- [ ] Assign a random 64-bit number to every (piece, square) combination (12 × 64 = 768 values)
-- [ ] Add random values for: side to move, castling rights (4 bits), en passant file (8 values)
-- [ ] Incrementally update the hash on make/unmake move — never recompute from scratch
-- [ ] Verify correctness: after make+unmake, hash must equal original
+- [x] Assign a random 64-bit number to every (piece, square) combination (12 × 64 = 768 values)
+- [x] Add random values for: side to move, castling rights (4 bits), en passant file (8 values)
+- [x] Incrementally update the hash on make/unmake move — never recompute from scratch
+- [x] Verify correctness: after make+unmake, hash must equal original
 
 ### 1.2 TT Entry Structure
 ```c
@@ -35,25 +35,25 @@ typedef struct {
 ```
 
 ### 1.3 Table Design
-- [ ] Use power-of-two table size for fast index via bitmasking (`key & (size - 1)`)
-- [ ] Start with 64MB default, make size configurable via UCI option
-- [ ] Use a **two-bucket** scheme per slot (always-replace + depth-preferred) to reduce collision loss
-- [ ] On collision: replace if stored depth ≤ incoming depth, or if generation differs (aging)
+- [x] Use power-of-two table size for fast index via bitmasking (`key & (size - 1)`)
+- [x] Start with 64MB default, make size configurable via UCI option
+- [x] Use a **two-bucket** scheme per slot (always-replace + depth-preferred) to reduce collision loss
+- [x] On collision: replace if stored depth ≤ incoming depth, or if generation differs (aging)
 
 ### 1.4 Integration into Search
-- [ ] Probe TT at the top of every `negamax`/`alpha_beta` call before doing any work
-- [ ] On hit: if `entry.depth >= current_depth`, use score directly (adjust for mate distances)
-- [ ] Store result in TT on the way back up the tree with appropriate flag
-- [ ] Use `best_move` from TT hit as first move to try (feeds move ordering)
+- [x] Probe TT at the top of every `negamax`/`alpha_beta` call before doing any work
+- [x] On hit: if `entry.depth >= current_depth`, use score directly (adjust for mate distances)
+- [x] Store result in TT on the way back up the tree with appropriate flag
+- [x] Use `best_move` from TT hit as first move to try (feeds move ordering)
 
 ### 1.5 TT and Mate Scores
-- [ ] Mate scores must be stored relative to the current node, not the root
-- [ ] On store: `score += ply` if score is a mate score; on retrieve: `score -= ply`
+- [x] Mate scores must be stored relative to the current node, not the root
+- [x] On store: `score += ply` if score is a mate score; on retrieve: `score -= ply`
 
 ### 1.6 Testing
-- [ ] Verify no illegal moves are returned from TT after hash collision
-- [ ] Check that node counts decrease significantly vs. baseline on standard positions
-- [ ] Run perft through TT to confirm no incorrect cutoffs
+- [x] Verify no illegal moves are returned from TT after hash collision
+- [x] Check that node counts decrease significantly vs. baseline on standard positions
+- [x] Run perft through TT to confirm no incorrect cutoffs
 
 ---
 
@@ -63,11 +63,11 @@ typedef struct {
 Good move ordering is the single biggest driver of search efficiency. Target: approach the
 theoretical minimum of `O(b^(d/2))` nodes.
 
-- [ ] **TT move first** — always try the hash move before anything else
-- [ ] **MVV-LVA** (Most Valuable Victim – Least Valuable Attacker) for captures
-- [ ] **Killer moves** — store 2 non-capture moves per ply that caused a beta cutoff; try them early
-- [ ] **History heuristic** — track which quiet moves improved alpha; score them proportionally
-- [ ] **Countermove heuristic** — store one refutation per (piece, to-square) pair
+- [x] **TT move first** — always try the hash move before anything else
+- [x] **MVV-LVA** (Most Valuable Victim – Least Valuable Attacker) for captures
+- [x] **Killer moves** — store 2 non-capture moves per ply that caused a beta cutoff; try them early
+- [x] **History heuristic** — track which quiet moves improved alpha; score them proportionally
+- [x] **Countermove heuristic** — store one refutation per (piece, to-square) pair
 
 ### 2.2 Iterative Deepening (ID)
 - [ ] Always search via ID: depth 1, 2, 3 … up to max depth or time limit
