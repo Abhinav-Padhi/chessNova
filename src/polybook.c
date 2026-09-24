@@ -190,6 +190,34 @@ uint32_t ConvertPolyMoveToInternalMove(unsigned short polyMove, Board* board) {
     int tr = (polyMove >> 3) & 7;
     int pp = (polyMove >> 12) & 7;
 
+    /*
+     * Polyglot encodes castling as the king moving onto its own rook's square
+     * (e.g. e1h1), whereas the engine's move generation emits the king's actual
+     * destination square (e1g1). Remap to UCI form before building the string.
+     */
+    if (pp == 0) {
+        int from_sq = fr * 8 + ff;
+        int to_sq = tr * 8 + tf;
+
+        if (board->pieces[from_sq] == wk && from_sq == e1) {
+            if (to_sq == h1) {
+                tf = 6;
+                tr = 0; /* White kingside  (e1h1 -> e1g1) */
+            } else if (to_sq == a1) {
+                tf = 2;
+                tr = 0; /* White queenside (e1a1 -> e1c1) */
+            }
+        } else if (board->pieces[from_sq] == bk && from_sq == e8) {
+            if (to_sq == h8) {
+                tf = 6;
+                tr = 7; /* Black kingside  (e8h8 -> e8g8) */
+            } else if (to_sq == a8) {
+                tf = 2;
+                tr = 7; /* Black queenside (e8a8 -> e8c8) */
+            }
+        }
+    }
+
     char moveString[6];
     if (pp == 0) {
         sprintf(moveString, "%c%c%c%c", 'a' + ff, '1' + fr, 'a' + tf, '1' + tr);

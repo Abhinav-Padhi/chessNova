@@ -2,6 +2,9 @@
 #include "tt.h"
 #include <stdio.h>
 #include <string.h>
+#include "polyglot.h"
+
+#include "tt.h"
 
 /**
  * Standard MVV-LVA (Most Valuable Victim - Least Valuable Attacker) Table.
@@ -16,7 +19,6 @@ static const int MVV_LVA[6][6] = {
     {505, 504, 503, 502, 501, 500}, // Victim: Queen
     {605, 604, 603, 602, 601, 600}  // Victim: King
 };
-
 /**
  * Checks if the search should be stopped due to time or other conditions.
  */
@@ -272,6 +274,14 @@ static int alpha_beta(Board* board, SearchInfo* info, int depth, int alpha, int 
 }
 
 uint32_t search_best_move(Board* board, SearchInfo* info) {
+    info->stopped = 0;
+    info->nodes = 0;
+
+    uint32_t book_move = get_polyglot_move(board);
+    if (book_move != 0) {
+        return book_move;
+    }
+
     uint32_t best_move = 0;
     int best_score = -INFINITY;
     int current_depth = 1;
@@ -280,8 +290,6 @@ uint32_t search_best_move(Board* board, SearchInfo* info) {
 
     memset(info->killer_moves, 0, sizeof(info->killer_moves));
     memset(info->history_moves, 0, sizeof(info->history_moves));
-    info->stopped = 0;
-    info->nodes = 0;
 
     increment_tt_age();
 
