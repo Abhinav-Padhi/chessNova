@@ -179,6 +179,26 @@ static uint32_t convert_polyglot_move(uint16_t pg_move, Board* board) {
     int from_sq = (pg_move >> 6) & 0x3F;
     int promote = (pg_move >> 12) & 0x7;
 
+    /*
+     * Polyglot encodes castling as the king moving onto its own rook's square
+     * (e.g. e1h1), whereas our move generator emits the king's actual
+     * destination square (e1g1). Remap the Polyglot encoding to the UCI form
+     * before comparing against the legal move list below.
+     */
+    if (promote == 0) {
+        if (board->pieces[from_sq] == wk && from_sq == e1) {
+            if (to_sq == h1)
+                to_sq = g1;  /* White kingside  (e1h1 -> e1g1) */
+            else if (to_sq == a1)
+                to_sq = c1;  /* White queenside (e1a1 -> e1c1) */
+        } else if (board->pieces[from_sq] == bk && from_sq == e8) {
+            if (to_sq == h8)
+                to_sq = g8;  /* Black kingside  (e8h8 -> e8g8) */
+            else if (to_sq == a8)
+                to_sq = c8;  /* Black queenside (e8a8 -> e8c8) */
+        }
+    }
+
     MoveList list;
     generate_all_moves(board, &list);
 

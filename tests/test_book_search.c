@@ -178,6 +178,94 @@ static void test_invalid_missing_book(void) {
     printf("  ✓ Test 4 Passed!\n\n");
 }
 
+/**
+ * Test 5: Castling Book Move
+ * Build a temporary one-entry Polyglot book for a position where castling is
+ * legal, storing the move in Polyglot's own encoding (king moves onto its own
+ * rook, e.g. e1h1). The engine must remap that to the UCI form (e1g1), return
+ * the castling move, and skip the search.
+ */
+static void test_castling_scenario(const char* fen, uint16_t pg_move, const char* expected_uci,
+                                   const char* desc) {
+    Board board;
+    parse_fen(fen, &board);
+
+    const char* tmp_path = "book_castle_test.bin";
+    FILE* tmp = fopen(tmp_path, "wb");
+    if (!tmp) {
+        fprintf(stderr, "[ERR] fopen failed for %s\n", tmp_path);
+        return;
+    }
+
+    PolyglotEntry e;
+    e.key = polyglot_hash(&board);
+    e.move = pg_move;
+    e.weight = 1;
+    e.learn = 0;
+
+    /* Polyglot files are big-endian; get_polyglot_move() byte-swaps on read. */
+    unsigned char buf[16];
+    for (int i = 0; i < 8; i++)
+        buf[i] = (unsigned char)(e.key >> (56 - 8 * i));
+    buf[8] = (unsigned char)(e.move >> 8);
+    buf[9] = (unsigned char)(e.move & 0xFF);
+    buf[10] = (unsigned char)(e.weight >> 8);
+    buf[11] = (unsigned char)(e.weight & 0xFF);
+    buf[12] = (unsigned char)(e.learn >> 24);
+    buf[13] = (unsigned char)(e.learn >> 16);
+    buf[14] = (unsigned char)(e.learn >> 8);
+    buf[15] = (unsigned char)(e.learn & 0xFF);
+    size_t nw = fwrite(buf, 1, sizeof(buf), tmp);
+    if (nw != sizeof(buf)) {
+        fclose(tmp);
+        return;
+    }
+    fclose(tmp);
+
+    snprintf(book_file_path, sizeof(book_file_path), "%s", tmp_path);
+    use_book = true;
+
+    SearchInfo info;
+    memset(&info, 0, sizeof(SearchInfo));
+    info.depth = 6;
+    info.starttime = get_time_ms();
+
+    uint32_t move = search_best_move(&board, &info);
+    assert(move != 0 && "Expected castling move returned from book");
+    assert(info.nodes == 0 && "Expected search to be skipped (book move found)");
+
+    char* move_str = move_to_string(move);
+    printf("  -> %s: %s (nodes: %llu)\n", desc, move_str, (unsigned long long)info.nodes);
+    assert(strcmp(move_str, expected_uci) == 0 &&
+           "Expected Polyglot castling encoding to be remapped to UCI castling");
+
+    remove(tmp_path);
+}
+
+/**
+ * Verifies that all four castling encodings (White/Black x kingside/queenside)
+ * stored in Polyglot form are correctly played from the opening book.
+ */
+static void test_castling_book_move(void) {
+    printf("Running Test 5: Castling Book Move...\n");
+
+    /* White to move, both castling rights intact. */
+    test_castling_scenario("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1", 0x0107, "e1g1",
+                           "White kingside (e1h1 -> e1g1)");
+    test_castling_scenario("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1", 0x0100, "e1c1",
+                           "White queenside (e1a1 -> e1c1)");
+
+    /* Black to move, both castling rights intact. */
+    test_castling_scenario("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1", 0x0F3F, "e8g8",
+                           "Black kingside (e8h8 -> e8g8)");
+    test_castling_scenario("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1", 0x0F38, "e8c8",
+                           "Black queenside (e8a8 -> e8c8)");
+
+    /* Restore the original book path. */
+    snprintf(book_file_path, sizeof(book_file_path), "%s", original_book_path);
+    printf("  ✓ Test 5 Passed!\n\n");
+}
+
 int main(void) {
     init_magics();
     init_evaluation_masks();
@@ -191,6 +279,7 @@ int main(void) {
     test_known_book_line();
     test_out_of_book_position();
     test_invalid_missing_book();
+    test_castling_book_move();
 
     printf("==========================================\n");
     printf("   All Opening Book Search Tests Passed!  \n");
